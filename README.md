@@ -14,8 +14,9 @@ Everything runs in the browser. Pictures never leave your device except as the m
 
 1. Open the app, pick a picture (or take one), and crop it.
 2. Choose a preset, or set size and quality yourself. **Fit into a set number of messages** picks the settings for a message budget.
-3. Optionally send the heads-up message first so your friend knows what's coming.
-4. Press **Copy message 1**, paste it into MeshCore, send. Repeat until every tile is filled.
+3. You can choose to include the link to the website (https://cbtbeast2000.github.io/MeshPix/#receive) in the "Link to this page" Section to appear in the heads up message
+4. Optionally send the heads-up message first so your friend knows what's coming.
+5. Press **Copy message 1**, paste it into MeshCore, send. Repeat until every tile is filled.
 
 ## Receiving
 
