@@ -1,0 +1,1780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meshpix · pictures over MeshCore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E6ECEF; --panel:#F8FAFB; --panel-2:#EEF3F5; --ink:#15202E; --muted:#566376; --line:#C3CDD6; --line-2:#D8E0E6;
+  --teal:#08717B; --teal-ink:#fff; --teal-soft:#D2EAEC; --amber:#A86F00; --amber-soft:#F4E4BE; --miss:#9AA4B2; --danger:#A3322A;
+  --focus:#1F5FD1; --grid:rgba(21,32,46,.045);
+  --display:"Chakra Petch", "Bahnschrift", "DIN Alternate", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1826; --panel:#142336; --panel-2:#1A2C42; --ink:#E3EAF1; --muted:#95A4B7; --line:#2B405A; --line-2:#22364E;
+    --teal:#47C2CA; --teal-ink:#06222A; --teal-soft:#123B46; --amber:#EDB443; --amber-soft:#3A2F16; --miss:#5E6E84; --danger:#F07C6F;
+    --focus:#7FB0FF; --grid:rgba(227,234,241,.035); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1826; --panel:#142336; --panel-2:#1A2C42; --ink:#E3EAF1; --muted:#95A4B7; --line:#2B405A; --line-2:#22364E;
+  --teal:#47C2CA; --teal-ink:#06222A; --teal-soft:#123B46; --amber:#EDB443; --amber-soft:#3A2F16; --miss:#5E6E84; --danger:#F07C6F;
+  --focus:#7FB0FF; --grid:rgba(227,234,241,.035); color-scheme: dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+body{
+  margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 var(--body);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:24px 24px; min-height:100%;
+}
+img,canvas{ max-width:100%; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+[hidden]{ display:none !important; }
+h1,h2,h3{ font-family:var(--display); font-weight:600; letter-spacing:.01em; line-height:1.15; margin:0; }
+h2{ font-size:1.25rem; }
+h3{ font-size:1.02rem; }
+p{ margin:0 0 .75em; }
+a{ color:var(--teal); }
+code,.mono{ font-family:var(--mono); }
+
+/* top bar */
+.top{ position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--line-2); }
+.top-in{ max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+.brand{ display:flex; align-items:center; gap:10px; margin-right:auto; }
+.brand h1{ font-size:1.45rem; font-weight:700; }
+.brand small{ display:block; font-size:.8rem; color:var(--muted); font-family:var(--body); font-weight:400; letter-spacing:0; }
+.tabs{ display:flex; background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px; }
+.tabs button{ border:0; background:transparent; padding:7px 14px; border-radius:6px; font-family:var(--display); font-weight:600; cursor:pointer; color:var(--muted); }
+.tabs button[aria-selected="true"]{ background:var(--panel); color:var(--ink); box-shadow:0 1px 0 var(--line); }
+.tabs .short{ display:none; }
+.tabs .count{ display:inline-block; min-width:1.4em; margin-left:6px; padding:0 5px; border-radius:99px; background:var(--teal); color:var(--teal-ink); font-size:.75rem; line-height:1.4; }
+.theme-btn{ border:1px solid var(--line); background:var(--panel); border-radius:8px; width:38px; height:38px; cursor:pointer; display:grid; place-items:center; }
+
+main{ max-width:1180px; margin:0 auto; padding:20px 18px 64px; }
+.panel{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }
+.panel-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.hint{ color:var(--muted); font-size:.9rem; }
+.small{ font-size:.85rem; }
+
+/* buttons */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:8px 14px; cursor:pointer; font-family:var(--display); font-weight:600; font-size:.95rem; text-decoration:none; color:var(--ink); min-height:40px; }
+.btn:hover{ border-color:var(--muted); }
+.btn.primary{ background:var(--teal); color:var(--teal-ink); border-color:var(--teal); }
+.btn.primary:hover{ filter:brightness(1.07); }
+.btn.ghost{ background:transparent; }
+.btn.danger{ color:var(--danger); }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn svg{ width:18px; height:18px; flex:none; }
+.row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+/* send layout */
+.send-grid{ display:grid; grid-template-columns:minmax(0,1.08fr) minmax(0,1fr); gap:18px; align-items:start; }
+.send-grid .span{ grid-column:1 / -1; }
+.stack{ display:grid; gap:18px; }
+@media (max-width:900px){ .send-grid{ grid-template-columns:minmax(0,1fr); } }
+
+/* drop zone + crop */
+.drop{ border:2px dashed var(--line); border-radius:10px; padding:28px 18px; text-align:center; display:grid; gap:12px; justify-items:center; background:var(--panel-2); }
+.drop.over{ border-color:var(--teal); background:var(--teal-soft); }
+.drop .big{ font-family:var(--display); font-size:1.15rem; font-weight:600; }
+.cropwrap{ position:relative; border-radius:8px; overflow:hidden; background:repeating-conic-gradient(var(--panel-2) 0 25%, var(--panel) 0 50%) 0 0/16px 16px; touch-action:none; }
+#cropCanvas{ display:block; width:100%; cursor:grab; }
+#cropCanvas.dragging{ cursor:grabbing; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip{ border:1px solid var(--line); background:var(--panel); border-radius:99px; padding:5px 12px; cursor:pointer; font-size:.88rem; }
+.chip[aria-pressed="true"]{ background:var(--ink); color:var(--panel); border-color:var(--ink); }
+.crop-tools{ display:grid; gap:10px; margin-top:12px; }
+
+/* preview */
+.preview-box{ display:grid; grid-template-columns:1fr; gap:12px; }
+.preview-box.compare{ grid-template-columns:1fr 1fr; }
+.pv{ margin:0; }
+.pv figcaption{ font-size:.85rem; color:var(--muted); margin-top:6px; }
+.pv .frame{ border-radius:8px; overflow:hidden; background:repeating-conic-gradient(var(--panel-2) 0 25%, var(--panel) 0 50%) 0 0/14px 14px; display:grid; place-items:center; min-height:140px; }
+.pv canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; }
+.smooth .pv canvas, canvas.smooth{ image-rendering:auto; }
+.empty-pv{ padding:40px 10px; color:var(--muted); text-align:center; }
+
+/* stats */
+.stats{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:14px; }
+.stat{ border-left:3px solid var(--teal); padding:2px 0 2px 10px; }
+.stat b{ display:block; font-family:var(--display); font-size:1.5rem; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; }
+.stat span{ font-size:.82rem; color:var(--muted); }
+.stat.warn{ border-color:var(--amber); }
+.warnline{ margin-top:10px; font-size:.9rem; background:var(--amber-soft); border-radius:8px; padding:8px 12px; }
+
+/* settings */
+.set-group{ border-top:1px solid var(--line-2); padding-top:14px; margin-top:14px; display:grid; gap:12px; }
+.set-group:first-of-type{ border-top:0; padding-top:0; margin-top:0; }
+.field{ display:grid; gap:5px; }
+.field > label, .lbl{ font-weight:700; font-size:.92rem; display:flex; justify-content:space-between; gap:10px; }
+.field output, .lbl output{ font-weight:400; color:var(--muted); font-variant-numeric:tabular-nums; }
+.field .help{ font-size:.82rem; color:var(--muted); }
+.seg{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:3px; gap:2px; }
+.seg button{ border:0; background:transparent; border-radius:6px; padding:7px 8px; cursor:pointer; font-weight:700; font-size:.9rem; color:var(--muted); }
+.seg button[aria-pressed="true"]{ background:var(--panel); color:var(--ink); box-shadow:0 0 0 1px var(--line); }
+input[type=range]{ width:100%; accent-color:var(--teal); height:26px; }
+input[type=text], input[type=number], input[type=url], select, textarea{ border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:8px 10px; width:100%; }
+textarea{ resize:vertical; }
+.check{ display:flex; align-items:flex-start; gap:10px; font-size:.95rem; cursor:pointer; }
+.check input{ width:18px; height:18px; accent-color:var(--teal); margin-top:3px; flex:none; }
+.two{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.three{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+details.more{ border-top:1px solid var(--line-2); margin-top:14px; padding-top:12px; }
+details.more > summary{ cursor:pointer; font-family:var(--display); font-weight:600; list-style:none; display:flex; align-items:center; gap:8px; }
+details.more > summary::-webkit-details-marker{ display:none; }
+details.more > summary::before{ content:""; width:8px; height:8px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(-45deg); transition:transform .15s; }
+details.more[open] > summary::before{ transform:rotate(45deg); }
+details.more > .inner{ display:grid; gap:12px; margin-top:12px; }
+.fitbox{ background:var(--teal-soft); border-radius:10px; padding:12px; display:grid; gap:10px; }
+.stepper{ display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.stepper button{ border:0; background:transparent; width:36px; height:36px; cursor:pointer; font-size:1.1rem; }
+.stepper span{ min-width:2.2em; text-align:center; font-family:var(--display); font-weight:700; font-variant-numeric:tabular-nums; }
+
+/* packet strip */
+.strip{ display:flex; flex-wrap:wrap; gap:4px; }
+.tile{ width:26px; height:26px; border-radius:4px; display:grid; place-items:center; font:600 .72rem/1 var(--display); border:1.5px solid var(--teal); color:var(--teal); background:transparent; font-variant-numeric:tabular-nums; }
+.tile.rec{ border-color:var(--amber); color:var(--amber); }
+.tile.on{ background:var(--teal); color:var(--teal-ink); }
+.tile.rec.on{ background:var(--amber); color:var(--panel); }
+.tile.miss{ border-style:dashed; border-color:var(--miss); color:var(--miss); }
+.tile.rebuilt{ background:var(--teal-soft); border-style:dotted; }
+.strip.big .tile{ width:34px; height:34px; font-size:.82rem; }
+
+/* messages */
+.send-next{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; margin:12px 0 16px; }
+.send-next .btn.primary{ min-height:54px; font-size:1.1rem; }
+.pace{ font-size:.88rem; color:var(--muted); text-align:right; min-width:9em; font-variant-numeric:tabular-nums; }
+.pace.wait{ color:var(--amber); font-weight:700; }
+.msgs{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+.msg{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center; padding:6px 6px 6px 8px; border:1px solid var(--line-2); border-radius:8px; background:var(--panel); }
+.msg code{ font-size:.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--muted); user-select:all; -webkit-user-select:all; }
+.msg.copied{ background:var(--panel-2); }
+.msg.copied code{ opacity:.6; }
+.msg .btn{ min-height:34px; padding:4px 12px; font-size:.85rem; }
+.msg.copied .btn{ color:var(--teal); }
+
+/* receive */
+.recv-grid{ display:grid; grid-template-columns:minmax(0,380px) minmax(0,1fr); gap:18px; align-items:start; }
+@media (max-width:900px){ .recv-grid{ grid-template-columns:minmax(0,1fr); } }
+.recv-grid > .panel:first-child{ position:sticky; top:84px; }
+@media (max-width:900px){ .recv-grid > .panel:first-child{ position:static; } }
+#pasteBox{ min-height:130px; font-family:var(--mono); font-size:.82rem; }
+.ingest-msg{ font-size:.9rem; min-height:1.5em; margin-top:8px; }
+.ingest-msg.ok{ color:var(--teal); }
+.ingest-msg.bad{ color:var(--danger); }
+.cards{ display:grid; gap:16px; }
+.card{ display:grid; grid-template-columns:minmax(0,260px) minmax(0,1fr); gap:18px; }
+@media (max-width:620px){ .card{ grid-template-columns:minmax(0,1fr); } }
+.card .frame{ border-radius:8px; overflow:hidden; background:repeating-conic-gradient(var(--panel-2) 0 25%, var(--panel) 0 50%) 0 0/14px 14px; display:grid; place-items:center; aspect-ratio:1; }
+.card canvas{ width:100%; height:100%; object-fit:contain; image-rendering:pixelated; display:block; }
+.card .meta{ display:grid; gap:10px; align-content:start; }
+.card .cap{ font-size:1.1rem; font-weight:700; }
+.status{ font-family:var(--display); font-weight:600; }
+.status.done{ color:var(--teal); }
+.status.wait{ color:var(--amber); }
+.status.err{ color:var(--danger); }
+.empty{ text-align:center; padding:48px 16px; color:var(--muted); display:grid; gap:10px; justify-items:center; }
+.empty svg{ width:64px; height:64px; opacity:.6; }
+
+/* help */
+.help-wrap{ max-width:760px; display:grid; gap:18px; }
+.help-wrap h2{ margin-bottom:8px; }
+.help-wrap ol, .help-wrap ul{ padding-left:1.3em; margin:0 0 .75em; }
+.help-wrap li{ margin-bottom:.35em; }
+.spec{ font-family:var(--mono); font-size:.82rem; background:var(--panel-2); padding:12px; border-radius:8px; overflow-x:auto; white-space:pre; line-height:1.55; }
+table.t{ border-collapse:collapse; width:100%; font-size:.9rem; }
+table.t th, table.t td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--line-2); vertical-align:top; }
+table.t th{ font-family:var(--display); font-weight:600; }
+.tblwrap{ overflow-x:auto; }
+
+/* toast + dialog */
+#toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--panel); padding:10px 16px; border-radius:10px; font-weight:700; font-size:.92rem; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:50; max-width:calc(100% - 32px); text-align:center; }
+#toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+dialog{ border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--ink); padding:18px; max-width:min(560px, calc(100% - 24px)); width:100%; }
+dialog::backdrop{ background:rgba(8,14,22,.55); }
+dialog img{ display:block; margin:0 auto; image-rendering:pixelated; max-height:60vh; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+@media (max-width:620px){
+  .brand{ flex:1; }
+  .top{ position:static; }
+  .tabs .long{ display:none; } .tabs .short{ display:inline; }
+  .tabs{ order:3; width:100%; }
+  .tabs button{ flex:1; padding:7px 6px; }
+  .send-next{ grid-template-columns:1fr; }
+  .pace{ text-align:left; }
+}
+@media (max-width:520px){
+  .two{ grid-template-columns:1fr; }
+  .stats .stat:last-child{ grid-column:1 / -1; }
+  .stats{ grid-template-columns:1fr 1fr; }
+  .top-in{ gap:10px; }
+  .brand small{ display:none; }
+  .preview-box.compare{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <rect x="2" y="12" width="6" height="6" fill="var(--teal)"/><rect x="9" y="12" width="6" height="6" fill="var(--ink)"/><rect x="16" y="12" width="6" height="6" fill="var(--teal)"/>
+        <rect x="2" y="19" width="6" height="6" fill="var(--ink)"/><rect x="9" y="19" width="6" height="6" fill="var(--amber)"/><rect x="16" y="19" width="6" height="6" fill="var(--ink)"/>
+        <rect x="2" y="26" width="6" height="6" fill="var(--teal)"/><rect x="9" y="26" width="6" height="6" fill="var(--ink)"/><rect x="16" y="26" width="6" height="6" fill="none" stroke="var(--miss)" stroke-dasharray="2 1.5"/>
+        <path d="M25 9a6 6 0 0 1 6 6M25 4a11 11 0 0 1 8 8" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div><h1>Meshpix</h1><small>Tiny pictures, sent as MeshCore text messages</small></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="t-send" aria-controls="tab-send" aria-selected="true">Send</button>
+      <button role="tab" id="t-receive" aria-controls="tab-receive" aria-selected="false">Receive<span class="count" id="inboxCount" hidden>0</span></button>
+      <button role="tab" id="t-help" aria-controls="tab-help" aria-selected="false"><span class="long">How it works</span><span class="short">Help</span></button>
+    </nav>
+    <button class="theme-btn" id="themeBtn" title="Switch light or dark" aria-label="Switch light or dark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+<!-- ============ SEND ============ -->
+<section id="tab-send" role="tabpanel" aria-labelledby="t-send">
+  <div class="send-grid">
+    <div class="stack">
+      <div class="panel" id="sourcePanel">
+        <div class="panel-head"><h2>Picture</h2><span class="hint" id="srcName"></span></div>
+        <div class="drop" id="drop">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>
+          <div class="big">Drop a picture here</div>
+          <div class="hint">or paste one with Ctrl/⌘ + V</div>
+          <div class="row" style="justify-content:center">
+            <label class="btn primary"><input type="file" id="fileIn" accept="image/*" hidden>Choose picture</label>
+            <label class="btn"><input type="file" id="camIn" accept="image/*" capture="environment" hidden>Take photo</label>
+            <button class="btn ghost" id="sampleBtn">Try a sample</button>
+          </div>
+        </div>
+        <div id="cropArea" hidden>
+          <div class="cropwrap"><canvas id="cropCanvas" aria-label="Crop area. Drag to move the frame."></canvas></div>
+          <div class="crop-tools">
+            <div class="row" style="justify-content:space-between">
+              <div class="chips" id="aspectChips" role="group" aria-label="Crop shape">
+                <button class="chip" data-a="orig" aria-pressed="true">Original</button>
+                <button class="chip" data-a="1">Square</button>
+                <button class="chip" data-a="1.3333">4:3</button>
+                <button class="chip" data-a="0.75">3:4</button>
+                <button class="chip" data-a="1.7778">16:9</button>
+              </div>
+              <div class="row">
+                <button class="btn ghost" id="rotBtn" title="Rotate 90°" aria-label="Rotate 90 degrees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+                <label class="btn ghost" title="Choose a different picture"><input type="file" id="fileIn2" accept="image/*" hidden>Change</label>
+              </div>
+            </div>
+            <div class="field"><label for="zoom">Zoom <output id="zoomOut">1.0×</output></label><input type="range" id="zoom" min="1" max="6" step="0.05" value="1"></div>
+            <p class="hint small" style="margin:0">Drag inside the picture to move the frame.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="previewPanel">
+        <div class="panel-head">
+          <h2>Preview</h2>
+          <div class="row">
+            <button class="chip" id="cmpBtn" aria-pressed="false">Compare</button>
+            <button class="chip" id="smoothBtn" aria-pressed="false">Smooth</button>
+          </div>
+        </div>
+        <div class="preview-box" id="pvBox">
+          <figure class="pv" id="pvOrigFig" hidden><div class="frame"><canvas id="pvOrig"></canvas></div><figcaption>Your crop</figcaption></figure>
+          <figure class="pv"><div class="frame" id="pvFrame"><div class="empty-pv" id="pvEmpty">Pick a picture to see the result.</div><canvas id="pvOut" hidden></canvas></div><figcaption id="pvCap">Decoded exactly as the receiver will decode it.</figcaption></figure>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="stBytes">0</b><span>bytes</span></div>
+          <div class="stat" id="stMsgBox"><b id="stMsgs">0</b><span id="stMsgsL">messages</span></div>
+          <div class="stat"><b id="stAir">0 s</b><span id="stAirL">on air per hop</span></div>
+        </div>
+        <div class="warnline" id="warnLine" hidden></div>
+      </div>
+    </div>
+
+    <div class="panel" id="settingsPanel">
+      <div class="panel-head"><h2>Settings</h2><button class="btn ghost small" id="resetBtn">Reset</button></div>
+
+      <div class="set-group">
+        <div class="lbl">Presets</div>
+        <div class="chips" id="presets">
+          <button class="chip" data-p="icon">Icon</button>
+          <button class="chip" data-p="thumb">Thumbnail</button>
+          <button class="chip" data-p="photo">Photo</button>
+          <button class="chip" data-p="detail">Detailed</button>
+          <button class="chip" data-p="sketch">Sketch</button>
+          <button class="chip" data-p="meme">Screenshot / text</button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="field">
+          <span class="lbl">Style</span>
+          <div class="seg" id="styleSeg" role="group" aria-label="Style">
+            <button data-v="photo" aria-pressed="true">Photo</button>
+            <button data-v="pixel">Pixel art</button>
+          </div>
+          <span class="help" id="styleHelp">Best for camera pictures. Smooth colours, soft detail.</span>
+        </div>
+        <div class="field"><label for="maxDim">Size <output id="dimOut"></output></label><input type="range" id="maxDim" min="16" max="160" step="4" value="64"></div>
+
+        <div id="photoOpts" class="set-group" style="border:0;padding:0;margin:0">
+          <div class="field"><label for="quality">Quality <output id="qOut"></output></label><input type="range" id="quality" min="1" max="95" step="1" value="35">
+            <span class="help">Higher is sharper but uses more messages.</span></div>
+          <label class="check"><input type="checkbox" id="grayPhoto"><span>Black and white <span class="hint">(about 30% smaller)</span></span></label>
+          <label class="check"><input type="checkbox" id="deblock" checked><span>Smooth out blocky edges</span></label>
+        </div>
+
+        <div id="pixelOpts" class="set-group" style="border:0;padding:0;margin:0" hidden>
+          <div class="field"><label for="colors">Colours <output id="colOut"></output></label><input type="range" id="colors" min="1" max="6" step="1" value="4"></div>
+          <label class="check"><input type="checkbox" id="grayPal"><span>Shades of grey only</span></label>
+          <div class="field">
+            <span class="lbl">Dithering</span>
+            <div class="seg" id="ditherSeg" role="group" aria-label="Dithering">
+              <button data-v="none" aria-pressed="true">None</button>
+              <button data-v="ordered">Pattern</button>
+              <button data-v="fs">Diffuse</button>
+            </div>
+            <span class="help">Dithering fakes extra shades, but costs a lot more bytes.</span>
+          </div>
+          <div class="field" id="ditherStrField"><label for="ditherStr">Dither strength <output id="dsOut"></output></label><input type="range" id="ditherStr" min="0.1" max="1" step="0.05" value="0.75"></div>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="fitbox">
+          <label class="check"><input type="checkbox" id="fitOn"><span><b>Fit into a set number of messages</b><br><span class="hint small" id="fitHelp">Quality is adjusted automatically.</span></span></label>
+          <div class="row" id="fitRow">
+            <div class="stepper"><button id="fitMinus" aria-label="Fewer messages">−</button><span id="fitN">4</span><button id="fitPlus" aria-label="More messages">+</button></div>
+            <span class="hint">messages in total, including recovery ones</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="field"><label for="caption">Caption <output id="capOut">0 / 100</output></label><input type="text" id="caption" maxlength="100" placeholder="Optional, e.g. View from the fire tower" autocomplete="off"></div>
+      </div>
+
+      <details class="more">
+        <summary>Adjust picture</summary>
+        <div class="inner">
+          <label class="check"><input type="checkbox" id="autoLevels"><span>Auto brightness and contrast</span></label>
+          <div class="field"><label for="bright">Brightness <output id="brOut"></output></label><input type="range" id="bright" min="-100" max="100" step="1" value="0"></div>
+          <div class="field"><label for="contrast">Contrast <output id="coOut"></output></label><input type="range" id="contrast" min="-100" max="100" step="1" value="0"></div>
+          <div class="field"><label for="sat">Colour intensity <output id="saOut"></output></label><input type="range" id="sat" min="-100" max="100" step="1" value="0"></div>
+          <div class="field"><label for="sharpen">Sharpen <output id="shOut"></output></label><input type="range" id="sharpen" min="0" max="100" step="1" value="25"></div>
+          <button class="btn ghost" id="adjReset" style="justify-self:start">Reset adjustments</button>
+        </div>
+      </details>
+
+      <details class="more">
+        <summary>Message settings</summary>
+        <div class="inner">
+          <div class="field"><label for="maxChars">Characters per message <output id="mcOut"></output></label><input type="range" id="maxChars" min="60" max="180" step="1" value="135">
+            <span class="help">The official app fits about 150 characters minus your name. If messages come out cut off, lower this.</span></div>
+          <div class="field"><label for="parity">Recovery messages <output id="parOut"></output></label><input type="range" id="parity" min="0" max="8" step="1" value="1">
+            <span class="help" id="parHelp"></span></div>
+          <div class="field">
+            <span class="lbl">Text alphabet</span>
+            <div class="seg" id="encSeg" role="group" aria-label="Text alphabet">
+              <button data-v="b85" aria-pressed="true">Compact</button>
+              <button data-v="b64">Base64</button>
+            </div>
+            <span class="help">Compact packs about 7% more per message. Base64 uses only letters, digits, + and /, if some app mangles symbols.</span>
+          </div>
+          <div class="field">
+            <label for="region">Radio settings <span class="hint" style="font-weight:400">for the airtime estimate</span></label>
+            <select id="region">
+              <option value="us">USA / Canada: SF7, 62.5 kHz, CR 4/5</option>
+              <option value="eu">EU / UK narrow: SF8, 62.5 kHz, CR 4/8</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="three" id="customRadio" hidden>
+            <div class="field"><label for="sf">SF</label><input type="number" id="sf" min="5" max="12" value="7"></div>
+            <div class="field"><label for="bw">BW kHz</label><input type="number" id="bw" min="7.8" max="500" step="0.1" value="62.5"></div>
+            <div class="field"><label for="cr">CR 4/</label><input type="number" id="cr" min="5" max="8" value="5"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="nameLen">Your name length</label><input type="number" id="nameLen" min="1" max="32" value="8"></div>
+            <div class="field"><label for="repeaters">Repeaters nearby</label><input type="number" id="repeaters" min="0" max="40" value="4"></div>
+          </div>
+          <div class="field"><label for="linkIn">Link to this page</label><input type="url" id="linkIn" placeholder="Paste your share link for Meshpix" autocomplete="off">
+            <span class="help">Added to the heads-up message so friends know where to decode.</span></div>
+        </div>
+      </details>
+    </div>
+
+    <div class="panel span" id="msgPanel">
+      <div class="panel-head">
+        <h2>Messages to send</h2>
+        <div class="row">
+          <button class="btn ghost" id="introBtn">Copy heads-up message</button>
+          <button class="btn ghost" id="copyAllBtn">Copy all</button>
+          <button class="btn ghost" id="testBtn">Test receive</button>
+        </div>
+      </div>
+      <div id="msgEmpty" class="hint">Your messages appear here once you pick a picture.</div>
+      <div id="msgBody" hidden>
+        <div class="strip big" id="sendStrip" aria-label="Messages copied so far"></div>
+        <div class="send-next">
+          <button class="btn primary" id="nextBtn">Copy message 1</button>
+          <div class="pace" id="pace" aria-live="polite"></div>
+        </div>
+        <p class="hint small">Paste each one into MeshCore and send it before copying the next. Order doesn't matter, and your friend can rebuild the picture from any <b id="needK">0</b> of them. Teal messages carry the picture, amber ones are recovery spares.</p>
+        <ol class="msgs" id="msgList"></ol>
+        <div class="row" style="margin-top:12px"><button class="btn ghost small" id="resetCopied">Mark all as not copied</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECEIVE ============ -->
+<section id="tab-receive" role="tabpanel" aria-labelledby="t-receive" hidden>
+  <div class="recv-grid">
+    <div class="panel">
+      <div class="panel-head"><h2>Paste messages</h2></div>
+      <p class="hint small">In MeshCore, long-press a message that starts with <code>~m</code> or <code>~b</code>, copy it, and paste it here. One at a time or many at once, in any order.</p>
+      <textarea id="pasteBox" placeholder="Paste here…" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="clipBtn">Paste from clipboard</button>
+        <button class="btn ghost" id="addBtn">Add</button>
+      </div>
+      <div class="ingest-msg" id="ingestMsg" aria-live="polite"></div>
+      <label class="check small" style="margin-top:6px"><input type="checkbox" id="autoClear" checked><span>Empty the box after each paste</span></label>
+    </div>
+    <div>
+      <div class="panel-head" style="padding:0 2px"><h2>Pictures</h2><button class="btn ghost small danger" id="clearAll" hidden>Remove all</button></div>
+      <div class="cards" id="cards"></div>
+      <div class="panel empty" id="recvEmpty">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="14" width="10" height="10"/><rect x="21" y="14" width="10" height="10" stroke-dasharray="3 3"/><rect x="34" y="14" width="10" height="10"/><rect x="8" y="27" width="10" height="10" stroke-dasharray="3 3"/><rect x="21" y="27" width="10" height="10"/><rect x="34" y="27" width="10" height="10" stroke-dasharray="3 3"/><path d="M48 12a8 8 0 0 1 8 8M48 5a15 15 0 0 1 14 14"/></svg>
+        <div><b>No pictures yet.</b></div>
+        <div class="small">Paste a message on the left. The picture starts drawing as soon as the first message arrives.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HELP ============ -->
+<section id="tab-help" role="tabpanel" aria-labelledby="t-help" hidden>
+  <div class="help-wrap">
+    <div class="panel">
+      <h2>What this does</h2>
+      <p>MeshCore can only carry short text messages. Meshpix squeezes a picture down to a few hundred bytes, turns those bytes into text, and splits the text into message-sized pieces. You send the pieces with the normal MeshCore app. Your friend pastes them into this page and gets the picture back. Nobody installs anything, and nothing leaves your device: all the work happens in the browser.</p>
+      <p>Expect thumbnail-sized pictures. A 64-pixel photo usually fits in 2 to 4 messages.</p>
+    </div>
+    <div class="panel">
+      <h2>Sending</h2>
+      <ol>
+        <li>Pick a picture, then crop it to the part that matters. Small subjects that fill the frame survive best.</li>
+        <li>Choose a preset, or set the size and quality yourself. Turn on <i>Fit into a set number of messages</i> if you have a message budget.</li>
+        <li>Optionally copy the heads-up message and send it first, so your friend knows what's coming.</li>
+        <li>Press <i>Copy message 1</i>, paste it into MeshCore, send it. Repeat until every tile is filled.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h2>Receiving</h2>
+      <ol>
+        <li>Copy each message that starts with <code>~m</code> or <code>~b</code> from MeshCore.</li>
+        <li>Paste it into the Receive tab. The picture draws from the top down as pieces arrive, and anything received is remembered in this browser if you leave and come back.</li>
+        <li>If a message never arrives, any recovery message can stand in for it. The tile strip shows what's still missing.</li>
+        <li>Save the picture, or copy it into another app.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h2>Being a good neighbour on the mesh</h2>
+      <p>Every message on a public channel gets repeated by each repeater that hears it, and the channel is shared airtime. A few habits keep the mesh usable for everyone:</p>
+      <ul>
+        <li>Send pictures as a direct message or on a private channel, not on Public.</li>
+        <li>Keep it to a handful of messages. The page warns you past 8.</li>
+        <li>Leave a gap between messages. The countdown next to the copy button suggests one based on your radio settings and nearby repeaters.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Photo or pixel art?</h2>
+      <p><b>Photo</b> uses a JPEG-like method tuned for tiny pictures: it keeps gradients and faces recognisable at very low byte counts. <b>Pixel art</b> reduces the picture to a small set of exact colours and is better for logos, drawings, maps, screenshots, QR-like graphics and emoji-style icons, where crisp edges matter more than shading.</p>
+    </div>
+    <div class="panel">
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><b>A message isn't recognised.</b> It was probably cut short. Lower <i>Characters per message</i> under Message settings and send again.</li>
+        <li><b>“Checksum mismatch.”</b> Two different pictures got mixed, or a message was edited. Remove the picture and paste again.</li>
+        <li><b>Clipboard buttons don't work.</b> Some browsers block them inside embedded pages. Select the text and copy or paste it by hand; long-press works on phones.</li>
+      </ul>
+      <div class="row"><button class="btn" id="saveTool">Save Meshpix as a file</button><span class="hint small">One HTML file that works offline. Host it anywhere or open it straight from your phone.</span></div>
+    </div>
+    <div class="panel">
+      <h2>Format, for the curious</h2>
+      <p>Every message is a 7-character header followed by the data:</p>
+      <div class="spec">~mFT0365sd.Fb9HWWWpp5Kc4cxPbZ…</div>
+      <div class="tblwrap" style="margin-top:10px"><table class="t">
+        <tr><th>Characters</th><th>Meaning</th></tr>
+        <tr><td><code>~</code></td><td>Marker that starts every Meshpix message</td></tr>
+        <tr><td><code>m</code></td><td>Alphabet: <code>m</code> is Compact (base 85, 4 bytes in 5 characters), <code>b</code> is Base64</td></tr>
+        <tr><td><code>FT</code></td><td>Picture id, two random characters</td></tr>
+        <tr><td><code>0</code></td><td>This message's index, base 62</td></tr>
+        <tr><td><code>3</code></td><td>k, the number of picture messages</td></tr>
+        <tr><td><code>6</code></td><td>n, the total number of messages including recovery</td></tr>
+        <tr><td>the rest</td><td>Data, the same length in every message of a picture</td></tr>
+      </table></div>
+      <p style="margin-top:12px">The n − k recovery messages are a Reed–Solomon erasure code over GF(256) built from a Cauchy matrix, so any k of the n messages rebuild the picture. Inside is a small container: a version and codec byte, the total length, the caption, the image data and a CRC-16.</p>
+      <div class="tblwrap"><table class="t">
+        <tr><th>Codec</th><th>How it works</th></tr>
+        <tr><td>Photo</td><td>YCbCr with 4:2:0 colour, 8×8 DCT, JPEG quantisation tables scaled by quality, then an adaptive binary arithmetic coder with context modelling of DC differences, coefficient positions and magnitudes. No Huffman tables or headers to pay for, which is what normally makes JPEG useless below 1 KB.</td></tr>
+        <tr><td>Pixel art</td><td>Median-cut plus k-means palette (stored as RGB565), optional ordered or error-diffusion dithering, then each pixel coded as “same as left”, “same as above” or an explicit colour, with probabilities learned from the neighbouring pixels.</td></tr>
+      </table></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="dlg"><div id="dlgBody"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="dlgClose">Close</button></div></dialog>
+
+<script>/* Meshpix core: codecs + chunking. No DOM. */
+(function (root) {
+'use strict';
+
+/* ---------------- Adaptive binary range coder (LZMA style) ---------------- */
+const TOP = 16777216, MOVE = 4;
+function probs(n) { const a = new Uint16Array(n); a.fill(1024); return a; }
+
+class Enc {
+  constructor() { this.low = 0; this.range = 0xFFFFFFFF; this.cache = 0; this.cacheSize = 1; this.out = []; }
+  bit(p, i, b) {
+    const pr = p[i], bound = (this.range >>> 11) * pr;
+    if (!b) { this.range = bound; p[i] = pr + ((2048 - pr) >> MOVE); }
+    else { this.low += bound; this.range -= bound; p[i] = pr - (pr >> MOVE); }
+    while (this.range < TOP) { this.range = (this.range * 256) >>> 0; this.shift(); }
+  }
+  shift() {
+    if (this.low < 0xFF000000 || this.low >= 4294967296) {
+      const carry = this.low >= 4294967296 ? 1 : 0;
+      let t = this.cache;
+      do { this.out.push((t + carry) & 0xFF); t = 0xFF; } while (--this.cacheSize !== 0);
+      this.cache = Math.floor(this.low / 16777216) & 0xFF;
+    }
+    this.cacheSize++;
+    this.low = (this.low % 16777216) * 256;
+  }
+  finish() {
+    for (let i = 0; i < 5; i++) this.shift();
+    const o = this.out;
+    o.shift(); // first byte is always 0
+    while (o.length && o[o.length - 1] === 0) o.pop();
+    return Uint8Array.from(o);
+  }
+}
+class Dec {
+  constructor(buf, limit) {
+    this.buf = buf; this.pos = 0; this.range = 0xFFFFFFFF; this.code = 0;
+    this.limit = limit == null ? Infinity : limit;
+    for (let i = 0; i < 4; i++) this.code = this.code * 256 + this.byte();
+  }
+  byte() { const b = this.pos < this.buf.length ? this.buf[this.pos] : 0; this.pos++; return b; }
+  bit(p, i) {
+    const pr = p[i], bound = (this.range >>> 11) * pr;
+    let b;
+    if (this.code < bound) { this.range = bound; p[i] = pr + ((2048 - pr) >> MOVE); b = 0; }
+    else { this.code -= bound; this.range -= bound; p[i] = pr - (pr >> MOVE); b = 1; }
+    while (this.range < TOP) { this.range = (this.range * 256) >>> 0; this.code = this.code * 256 + this.byte(); }
+    return b;
+  }
+  get overrun() { return this.pos > this.limit; }
+}
+
+/* Signed integer coder (exp-Golomb binarisation with adaptive contexts) */
+function intCtx() { return { z: probs(1), s: probs(1), e: probs(20), m: probs(400) }; }
+function encInt(E, c, v, allowZero) {
+  if (allowZero) { E.bit(c.z, 0, v !== 0 ? 1 : 0); if (v === 0) return; }
+  E.bit(c.s, 0, v < 0 ? 1 : 0);
+  const t = Math.abs(v), nb = 31 - Math.clz32(t);
+  for (let j = 0; j < nb; j++) E.bit(c.e, Math.min(j, 19), 1);
+  E.bit(c.e, Math.min(nb, 19), 0);
+  const row = Math.min(nb, 19) * 20;
+  for (let j = nb - 1; j >= 0; j--) E.bit(c.m, row + Math.min(nb - 1 - j, 19), (t >> j) & 1);
+}
+function decInt(D, c, allowZero) {
+  if (allowZero && !D.bit(c.z, 0)) return 0;
+  const neg = D.bit(c.s, 0);
+  let nb = 0;
+  while (nb < 24 && D.bit(c.e, Math.min(nb, 19))) nb++;
+  const row = Math.min(nb, 19) * 20;
+  let t = 1;
+  for (let j = nb - 1; j >= 0; j--) t = (t << 1) | D.bit(c.m, row + Math.min(nb - 1 - j, 19));
+  return neg ? -t : t;
+}
+
+/* ---------------- Small helpers ---------------- */
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+function to565(c) { return [Math.round(c[0] * 31 / 255), Math.round(c[1] * 63 / 255), Math.round(c[2] * 31 / 255)]; }
+function from565(q) { return [Math.round(q[0] * 255 / 31), Math.round(q[1] * 255 / 63), Math.round(q[2] * 255 / 31)]; }
+function snap565(c) { return from565(to565(c)); }
+const luma = c => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+
+/* ---------------- Colour quantisation + dithering ---------------- */
+function cdist(r, g, b, p) { const dr = r - p[0], dg = g - p[1], db = b - p[2]; return 3 * dr * dr + 4 * dg * dg + 2 * db * db; }
+function nearest(pal, r, g, b) {
+  let bi = 0, bd = Infinity;
+  for (let i = 0; i < pal.length; i++) { const d = cdist(r, g, b, pal[i]); if (d < bd) { bd = d; bi = i; } }
+  return bi;
+}
+function uniqueColors(rgba, cap) {
+  const s = new Map();
+  for (let i = 0; i < rgba.length; i += 4) {
+    const k = (rgba[i] << 16) | (rgba[i + 1] << 8) | rgba[i + 2];
+    if (!s.has(k)) { s.set(k, [rgba[i], rgba[i + 1], rgba[i + 2]]); if (s.size > cap) return null; }
+  }
+  return [...s.values()];
+}
+function buildPalette(rgba, n) {
+  const N = rgba.length >> 2;
+  const exact = uniqueColors(rgba, n);
+  let pal;
+  if (exact) pal = exact;
+  else {
+    // median cut
+    let boxes = [Array.from({ length: N }, (_, i) => i)];
+    const rng = (box, ch) => { let lo = 255, hi = 0; for (const i of box) { const v = rgba[i * 4 + ch]; if (v < lo) lo = v; if (v > hi) hi = v; } return hi - lo; };
+    while (boxes.length < n) {
+      let best = -1, bs = 0, bch = 0;
+      boxes.forEach((b, bi) => {
+        if (b.length < 2) return;
+        for (let ch = 0; ch < 3; ch++) { const s = rng(b, ch) * Math.sqrt(b.length) * (ch === 1 ? 1.2 : 1); if (s > bs) { bs = s; best = bi; bch = ch; } }
+      });
+      if (best < 0 || bs === 0) break;
+      const b = boxes[best];
+      b.sort((x, y) => rgba[x * 4 + bch] - rgba[y * 4 + bch]);
+      const mid = b.length >> 1;
+      boxes.splice(best, 1, b.slice(0, mid), b.slice(mid));
+    }
+    pal = boxes.map(b => { let r = 0, g = 0, bl = 0; for (const i of b) { r += rgba[i * 4]; g += rgba[i * 4 + 1]; bl += rgba[i * 4 + 2]; } return [r / b.length, g / b.length, bl / b.length]; });
+    // k-means refinement
+    const asg = new Uint8Array(N);
+    for (let it = 0; it < 8; it++) {
+      const sum = pal.map(() => [0, 0, 0, 0]);
+      for (let i = 0; i < N; i++) {
+        const k = nearest(pal, rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2]); asg[i] = k;
+        const s = sum[k]; s[0] += rgba[i * 4]; s[1] += rgba[i * 4 + 1]; s[2] += rgba[i * 4 + 2]; s[3]++;
+      }
+      pal = pal.map((p, k) => sum[k][3] ? [sum[k][0] / sum[k][3], sum[k][1] / sum[k][3], sum[k][2] / sum[k][3]] : p);
+    }
+  }
+  // snap to RGB565, dedupe, sort by brightness
+  const seen = new Set(), out = [];
+  for (const c of pal) { const s = snap565(c), key = s.join(','); if (!seen.has(key)) { seen.add(key); out.push(s); } }
+  out.sort((a, b) => luma(a) - luma(b));
+  return out;
+}
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function mapPixels(rgba, W, H, pal, dither, strength) {
+  const out = new Uint8Array(W * H);
+  const n = pal.length;
+  const spread = (n <= 1 ? 0 : 255 / (Math.cbrt(n) + 0.5)) * strength;
+  if (dither === 'fs' && strength > 0) {
+    const buf = new Float32Array(W * H * 3);
+    for (let i = 0; i < W * H; i++) { buf[i * 3] = rgba[i * 4]; buf[i * 3 + 1] = rgba[i * 4 + 1]; buf[i * 3 + 2] = rgba[i * 4 + 2]; }
+    for (let y = 0; y < H; y++) {
+      const ltr = (y & 1) === 0;
+      for (let xi = 0; xi < W; xi++) {
+        const x = ltr ? xi : W - 1 - xi, i = y * W + x;
+        const r = clamp(buf[i * 3], 0, 255), g = clamp(buf[i * 3 + 1], 0, 255), b = clamp(buf[i * 3 + 2], 0, 255);
+        const k = nearest(pal, r, g, b); out[i] = k;
+        const er = (r - pal[k][0]) * strength, eg = (g - pal[k][1]) * strength, eb = (b - pal[k][2]) * strength;
+        const dir = ltr ? 1 : -1;
+        const push = (xx, yy, w) => { if (xx < 0 || xx >= W || yy >= H) return; const j = (yy * W + xx) * 3; buf[j] += er * w; buf[j + 1] += eg * w; buf[j + 2] += eb * w; };
+        push(x + dir, y, 7 / 16); push(x - dir, y + 1, 3 / 16); push(x, y + 1, 5 / 16); push(x + dir, y + 1, 1 / 16);
+      }
+    }
+    return out;
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    const t = dither === 'ordered' ? ((BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 - 0.5) * spread : 0;
+    out[i] = nearest(pal, rgba[i * 4] + t, rgba[i * 4 + 1] + t, rgba[i * 4 + 2] + t);
+  }
+  return out;
+}
+function grayPalette(n) { return Array.from({ length: n }, (_, i) => { const v = Math.round(i * 255 / (n - 1)); return [v, v, v]; }); }
+
+/* ---------------- Palette codec (id 2) ---------------- */
+function palModel(n) { const b = Math.max(1, Math.ceil(Math.log2(n))); return { b, size: 1 << b, eqL: probs(16), eqA: probs(16), tree: probs(n * (1 << b)) }; }
+function nbr(px, W, x, y) {
+  const L = x > 0 ? px[y * W + x - 1] : (y > 0 ? px[(y - 1) * W + x] : 0);
+  const A = y > 0 ? px[(y - 1) * W + x] : L;
+  const AL = (x > 0 && y > 0) ? px[(y - 1) * W + x - 1] : A;
+  const AR = (y > 0 && x < W - 1) ? px[(y - 1) * W + x + 1] : A;
+  const ctx = (L === A ? 1 : 0) | (L === AL ? 2 : 0) | (A === AR ? 4 : 0) | (A === AL ? 8 : 0);
+  return [L, A, ctx];
+}
+function encodePalette(rgba, W, H, opt) {
+  const gray = !!opt.gray;
+  let pal;
+  if (gray) {
+    const g = new Uint8ClampedArray(rgba.length);
+    for (let i = 0; i < rgba.length; i += 4) { const v = luma([rgba[i], rgba[i + 1], rgba[i + 2]]); g[i] = g[i + 1] = g[i + 2] = v; g[i + 3] = 255; }
+    rgba = g; pal = grayPalette(opt.colors);
+  } else pal = buildPalette(rgba, opt.colors);
+  if (pal.length < 2) pal.push(pal[0][0] > 128 ? [0, 0, 0] : [255, 255, 255]);
+  const n = pal.length;
+  const px = mapPixels(rgba, W, H, pal, opt.dither, opt.ditherStrength);
+  const head = [W, H, (n - 1) | (gray ? 0x80 : 0)];
+  if (!gray) for (const c of pal) { const q = to565(c); const v = (q[0] << 11) | (q[1] << 5) | q[2]; head.push(v >> 8, v & 255); }
+  const E = new Enc(), M = palModel(n);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const v = px[y * W + x], [L, A, ctx] = nbr(px, W, x, y);
+    E.bit(M.eqL, ctx, v === L ? 1 : 0);
+    if (v === L) continue;
+    if (A !== L) { E.bit(M.eqA, ctx, v === A ? 1 : 0); if (v === A) continue; }
+    let node = 1;
+    for (let j = M.b - 1; j >= 0; j--) { const bit = (v >> j) & 1; E.bit(M.tree, L * M.size + node, bit); node = node * 2 + bit; }
+  }
+  const body = E.finish();
+  const out = new Uint8Array(head.length + body.length); out.set(head); out.set(body, head.length);
+  return out;
+}
+function decodePalette(buf, limit) {
+  if (buf.length < 3) throw new Error('truncated');
+  const W = buf[0], H = buf[1], n = (buf[2] & 63) + 1, gray = !!(buf[2] & 0x80);
+  let p = 3, pal;
+  if (gray) pal = grayPalette(n);
+  else { pal = []; for (let i = 0; i < n; i++) { const v = (buf[p] << 8) | buf[p + 1]; p += 2; pal.push(from565([v >> 11, (v >> 5) & 63, v & 31])); } }
+  if (!W || !H) throw new Error('bad size');
+  const D = new Dec(buf.subarray(p), limit == null ? null : limit - p), M = palModel(n);
+  const px = new Uint8Array(W * H);
+  let done = W * H;
+  outer: for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const [L, A, ctx] = nbr(px, W, x, y);
+    let v;
+    if (D.bit(M.eqL, ctx)) v = L;
+    else if (A !== L && D.bit(M.eqA, ctx)) v = A;
+    else { let node = 1; for (let j = 0; j < M.b; j++) node = node * 2 + D.bit(M.tree, L * M.size + node); v = node - M.size; if (v >= n) v = n - 1; }
+    if (D.overrun) { done = y * W + x; break outer; }
+    px[y * W + x] = v;
+  }
+  const rgba = new Uint8ClampedArray(W * H * 4);
+  for (let i = 0; i < W * H; i++) {
+    if (i < done) { const c = pal[px[i]]; rgba[i * 4] = c[0]; rgba[i * 4 + 1] = c[1]; rgba[i * 4 + 2] = c[2]; rgba[i * 4 + 3] = 255; }
+    else rgba[i * 4 + 3] = 0;
+  }
+  return { W, H, rgba, complete: done === W * H, progress: done / (W * H), info: gray ? `${n} greys` : `${n} colours` };
+}
+
+/* ---------------- Photo codec (id 1): 8x8 DCT + context-coded coefficients ---------------- */
+const ZZ = [0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63];
+const QL = [16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13, 16, 24, 40, 57, 69, 56, 14, 17, 22, 29, 51, 87, 80, 62, 18, 22, 37, 56, 68, 109, 103, 77, 24, 35, 55, 64, 81, 104, 113, 92, 49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99];
+const QC = [17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99, 99, 99, 99, 24, 26, 56, 99, 99, 99, 99, 99, 47, 66, 99, 99, 99, 99, 99, 99].concat(new Array(32).fill(99));
+function qtable(base, q) { q = clamp(q, 1, 100); const s = q < 50 ? 5000 / q : 200 - 2 * q; return base.map(v => clamp(Math.floor((v * s + 50) / 100), 1, 255)); }
+const COS = (() => { const c = new Float64Array(64); for (let u = 0; u < 8; u++) for (let x = 0; x < 8; x++) c[u * 8 + x] = (u === 0 ? Math.SQRT1_2 : 1) * 0.5 * Math.cos((2 * x + 1) * u * Math.PI / 16); return c; })();
+function fdct(blk) { // in: 64 spatial (level shifted), out: 64 coefs (natural order)
+  const t = new Float64Array(64), o = new Float64Array(64);
+  for (let y = 0; y < 8; y++) for (let u = 0; u < 8; u++) { let s = 0; for (let x = 0; x < 8; x++) s += COS[u * 8 + x] * blk[y * 8 + x]; t[y * 8 + u] = s; }
+  for (let u = 0; u < 8; u++) for (let v = 0; v < 8; v++) { let s = 0; for (let y = 0; y < 8; y++) s += COS[v * 8 + y] * t[y * 8 + u]; o[v * 8 + u] = s; }
+  return o;
+}
+function idct(co) {
+  const t = new Float64Array(64), o = new Float64Array(64);
+  for (let v = 0; v < 8; v++) for (let x = 0; x < 8; x++) { let s = 0; for (let u = 0; u < 8; u++) s += COS[u * 8 + x] * co[v * 8 + u]; t[v * 8 + x] = s; }
+  for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) { let s = 0; for (let v = 0; v < 8; v++) s += COS[v * 8 + y] * t[v * 8 + x]; o[y * 8 + x] = s; }
+  return o;
+}
+const sigBk = i => i < 16 ? i : 16 + ((i - 16) >> 3);   // 1..21
+const acBk = i => i <= 2 ? 0 : i <= 5 ? 1 : i <= 9 ? 2 : i <= 14 ? 3 : i <= 20 ? 4 : 5;
+function photoModel() {
+  const m = [];
+  for (let c = 0; c < 2; c++) m.push({ dc: intCtx(), cbf: probs(3), sig: probs(22), last: probs(22), ac: Array.from({ length: 6 }, intCtx) });
+  return m;
+}
+function planeLayout(W, H, gray) {
+  const mcu = gray ? 8 : 16, mw = Math.ceil(W / mcu), mh = Math.ceil(H / mcu);
+  const planes = [{ w: mw * mcu, h: mh * mcu, cls: 0, sub: 1 }];
+  if (!gray) planes.push({ w: mw * 8, h: mh * 8, cls: 1, sub: 2 }, { w: mw * 8, h: mh * 8, cls: 1, sub: 2 });
+  for (const p of planes) { p.bw = p.w / 8; p.bh = p.h / 8; p.dc = new Int32Array(p.bw * p.bh); p.cbf = new Uint8Array(p.bw * p.bh); }
+  const order = []; // list of [plane, bx, by] in MCU order
+  for (let my = 0; my < mh; my++) for (let mx = 0; mx < mw; mx++) {
+    if (gray) order.push([0, mx, my]);
+    else { order.push([0, mx * 2, my * 2], [0, mx * 2 + 1, my * 2], [0, mx * 2, my * 2 + 1], [0, mx * 2 + 1, my * 2 + 1], [1, mx, my], [2, mx, my]); }
+  }
+  return { planes, order, perMcu: gray ? 1 : 6 };
+}
+function dcPred(p, bx, by) {
+  const L = bx > 0 ? p.dc[by * p.bw + bx - 1] : null, A = by > 0 ? p.dc[(by - 1) * p.bw + bx] : null;
+  if (L !== null && A !== null) return Math.floor((L + A + 1) / 2);
+  return L !== null ? L : A !== null ? A : 0;
+}
+function cbfCtx(p, bx, by) { return (bx > 0 ? p.cbf[by * p.bw + bx - 1] : 0) + (by > 0 ? p.cbf[(by - 1) * p.bw + bx] : 0); }
+
+function encodePhoto(rgba, W, H, opt) {
+  const gray = !!opt.gray, q = clamp(Math.round(opt.quality), 1, 100), deblock = opt.deblock !== false;
+  const lay = planeLayout(W, H, gray);
+  // build planes (edge-replicated)
+  const Y = new Float64Array(W * H), Cb = new Float64Array(W * H), Cr = new Float64Array(W * H);
+  for (let i = 0; i < W * H; i++) {
+    const r = rgba[i * 4], g = rgba[i * 4 + 1], b = rgba[i * 4 + 2];
+    Y[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+    Cb[i] = -0.168736 * r - 0.331264 * g + 0.5 * b + 128;
+    Cr[i] = 0.5 * r - 0.418688 * g - 0.081312 * b + 128;
+  }
+  const src = [Y, Cb, Cr];
+  const sample = (pi, x, y) => { // plane coords -> value (with subsampling + edge replication)
+    const p = lay.planes[pi];
+    if (p.sub === 1) return src[0][clamp(y, 0, H - 1) * W + clamp(x, 0, W - 1)];
+    let s = 0, c = 0;
+    for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) {
+      const xx = x * 2 + dx, yy = y * 2 + dy;
+      s += src[pi][clamp(yy, 0, H - 1) * W + clamp(xx, 0, W - 1)]; c++;
+    }
+    return s / c;
+  };
+  const QT = [qtable(QL, q), qtable(QC, q)];
+  const M = photoModel(), E = new Enc();
+  const blk = new Float64Array(64);
+  for (const [pi, bx, by] of lay.order) {
+    const p = lay.planes[pi], Q = QT[p.cls], m = M[p.cls];
+    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) blk[y * 8 + x] = sample(pi, bx * 8 + x, by * 8 + y) - 128;
+    const co = fdct(blk), qz = new Int32Array(64);
+    for (let k = 0; k < 64; k++) {
+      const nat = ZZ[k], v = co[nat] / Q[nat], off = k === 0 ? 0.5 : 0.36;
+      qz[k] = Math.sign(v) * Math.floor(Math.abs(v) + off);
+    }
+    const pred = dcPred(p, bx, by);
+    encInt(E, m.dc, qz[0] - pred, true);
+    p.dc[by * p.bw + bx] = qz[0];
+    let last = 0; for (let k = 63; k > 0; k--) if (qz[k]) { last = k; break; }
+    E.bit(m.cbf, cbfCtx(p, bx, by), last ? 1 : 0);
+    p.cbf[by * p.bw + bx] = last ? 1 : 0;
+    if (last) {
+      for (let k = 1; k <= 63; k++) {
+        const nz = qz[k] !== 0;
+        if (k < 63) E.bit(m.sig, sigBk(k), nz ? 1 : 0);
+        if (nz) {
+          encInt(E, m.ac[acBk(k)], qz[k], false);
+          if (k < 63) E.bit(m.last, sigBk(k), k === last ? 1 : 0);
+          if (k === last) break;
+        }
+      }
+    }
+  }
+  const body = E.finish();
+  const head = [W, H, q, (gray ? 1 : 0) | (deblock ? 2 : 0)];
+  const out = new Uint8Array(head.length + body.length); out.set(head); out.set(body, head.length);
+  return out;
+}
+function deblockPlane(pl, w, h, T) {
+  const f = (a, b, c, d) => { // p1 p0 | q0 q1 indices
+    const p1 = pl[a], p0 = pl[b], q0 = pl[c], q1 = pl[d];
+    if (Math.abs(q0 - p0) >= T * 1.6) return;
+    const dlt = clamp(((q0 - p0) * 4 + (p1 - q1)) / 8, -T / 2, T / 2);
+    pl[b] = p0 + dlt; pl[c] = q0 - dlt; pl[a] = p1 + dlt / 2; pl[d] = q1 - dlt / 2;
+  };
+  for (let x = 8; x < w; x += 8) for (let y = 0; y < h; y++) f(y * w + x - 2, y * w + x - 1, y * w + x, y * w + x + 1);
+  for (let y = 8; y < h; y += 8) for (let x = 0; x < w; x++) f((y - 2) * w + x, (y - 1) * w + x, y * w + x, (y + 1) * w + x);
+}
+function decodePhoto(buf, limit) {
+  if (buf.length < 4) throw new Error('truncated');
+  const W = buf[0], H = buf[1], q = buf[2], gray = !!(buf[3] & 1), deblock = !!(buf[3] & 2);
+  if (!W || !H || !q) throw new Error('bad header');
+  const lay = planeLayout(W, H, gray);
+  const QT = [qtable(QL, q), qtable(QC, q)];
+  const M = photoModel(), D = new Dec(buf.subarray(4), limit == null ? null : limit - 4);
+  const pix = lay.planes.map(p => new Float64Array(p.w * p.h).fill(128));
+  let blocksDone = 0, stopped = false;
+  const pending = [];
+  for (let oi = 0; oi < lay.order.length; oi++) {
+    const [pi, bx, by] = lay.order[oi];
+    const p = lay.planes[pi], Q = QT[p.cls], m = M[p.cls];
+    const qz = new Int32Array(64);
+    qz[0] = decInt(D, m.dc, true) + dcPred(p, bx, by);
+    p.dc[by * p.bw + bx] = qz[0];
+    const cb = D.bit(m.cbf, cbfCtx(p, bx, by));
+    p.cbf[by * p.bw + bx] = cb;
+    if (cb) {
+      for (let k = 1; k <= 63; k++) {
+        const nz = k < 63 ? D.bit(m.sig, sigBk(k)) : 1;
+        if (nz) {
+          qz[k] = decInt(D, m.ac[acBk(k)], false);
+          if (k === 63 || D.bit(m.last, sigBk(k))) break;
+        }
+      }
+    }
+    if (D.overrun) { stopped = true; break; }
+    pending.push([pi, bx, by, qz]);
+    if ((oi + 1) % lay.perMcu === 0) { // commit whole MCU
+      for (const [ppi, pbx, pby, pq] of pending) {
+        const pp = lay.planes[ppi], QQ = QT[pp.cls], co = new Float64Array(64);
+        for (let k = 0; k < 64; k++) co[ZZ[k]] = pq[k] * QQ[ZZ[k]];
+        const sp = idct(co), dst = pix[ppi];
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) dst[(pby * 8 + y) * pp.w + pbx * 8 + x] = sp[y * 8 + x] + 128;
+      }
+      pending.length = 0; blocksDone = oi + 1;
+    }
+  }
+  const complete = !stopped && blocksDone === lay.order.length;
+  if (deblock) lay.planes.forEach((p, i) => { const Q = QT[p.cls]; deblockPlane(pix[i], p.w, p.h, Q[1] / 3 + 2); });
+  // doneRows in luma pixels: whole MCU rows fully decoded
+  const mcu = gray ? 8 : 16, mw = Math.ceil(W / mcu);
+  const mcusDone = Math.floor(blocksDone / lay.perMcu);
+  const rgba = new Uint8ClampedArray(W * H * 4);
+  const cw = lay.planes[0].w;
+  const chroma = (pi, x, y) => { // bilinear upsample
+    const p = lay.planes[pi], fx = clamp((x + 0.5) / 2 - 0.5, 0, p.w - 1), fy = clamp((y + 0.5) / 2 - 0.5, 0, p.h - 1);
+    const x0 = Math.floor(fx), y0 = Math.floor(fy), x1 = Math.min(x0 + 1, p.w - 1), y1 = Math.min(y0 + 1, p.h - 1), ax = fx - x0, ay = fy - y0, d = pix[pi];
+    return (d[y0 * p.w + x0] * (1 - ax) + d[y0 * p.w + x1] * ax) * (1 - ay) + (d[y1 * p.w + x0] * (1 - ax) + d[y1 * p.w + x1] * ax) * ay;
+  };
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, mi = Math.floor(y / mcu) * mw + Math.floor(x / mcu);
+    if (mi >= mcusDone) { rgba[i * 4 + 3] = 0; continue; }
+    const Yv = pix[0][y * cw + x];
+    let r = Yv, g = Yv, b = Yv;
+    if (!gray) {
+      const cbv = chroma(1, x, y) - 128, crv = chroma(2, x, y) - 128;
+      r = Yv + 1.402 * crv; g = Yv - 0.344136 * cbv - 0.714136 * crv; b = Yv + 1.772 * cbv;
+    }
+    rgba[i * 4] = r; rgba[i * 4 + 1] = g; rgba[i * 4 + 2] = b; rgba[i * 4 + 3] = 255;
+  }
+  const total = Math.ceil(W / mcu) * Math.ceil(H / mcu);
+  return { W, H, rgba, complete, progress: mcusDone / total, info: `quality ${q}${gray ? ', greyscale' : ''}` };
+}
+
+/* ---------------- Container ---------------- */
+function utf8(s) { return new TextEncoder().encode(s); }
+function crc16(b, end) { let c = 0xFFFF; for (let i = 0; i < end; i++) { c ^= b[i] << 8; for (let k = 0; k < 8; k++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF; } return c; }
+function capBytes(caption) {
+  let s = (caption || '').trim(), b = utf8(s);
+  while (b.length > 100) { s = s.slice(0, -1); b = utf8(s); }
+  return b;
+}
+function buildContainer(codec, caption, payload) {
+  const cap = capBytes(caption);
+  const base = 1 + 1 + cap.length + payload.length + 2;
+  let lenBytes = base + 1 < 128 ? 1 : 2; // varint length (<16384)
+  const N = base + lenBytes;
+  if (N >= 16384) throw new Error('image too large');
+  const out = new Uint8Array(N); let p = 0;
+  out[p++] = (1 << 4) | codec;
+  if (lenBytes === 1) out[p++] = N; else { out[p++] = 0x80 | (N & 127); out[p++] = N >> 7; }
+  out[p++] = cap.length; out.set(cap, p); p += cap.length;
+  out.set(payload, p); p += payload.length;
+  const c = crc16(out, p); out[p++] = c >> 8; out[p++] = c & 255;
+  return out;
+}
+// parse (possibly partial) container. avail = number of valid bytes in buf.
+function parseContainer(buf, avail) {
+  if (avail < 3) return null;
+  const ver = buf[0] >> 4, codec = buf[0] & 15;
+  if (ver !== 1 || (codec !== 1 && codec !== 2)) throw new Error('not a Meshpix image');
+  let p = 1, N = buf[p++];
+  if (N & 0x80) { N = (N & 127) | (buf[p++] << 7); }
+  const capLen = buf[p++];
+  if (avail < p + capLen) return null;
+  const caption = new TextDecoder().decode(buf.subarray(p, p + capLen)); p += capLen;
+  const full = avail >= N;
+  if (full) { const c = crc16(buf, N - 2); if (c !== ((buf[N - 2] << 8) | buf[N - 1])) throw new Error('checksum mismatch'); }
+  const payload = buf.slice(p, N - 2);
+  const payloadAvail = full ? Infinity : Math.max(0, avail - p);
+  return { codec, caption, payload, full, payloadAvail, N };
+}
+function decodeImage(buf, avail) {
+  const c = parseContainer(buf, avail == null ? buf.length : avail);
+  if (!c) return null;
+  if (!c.full && c.payloadAvail < 6) return { caption: c.caption, partialNoImage: true };
+  const lim = c.full ? null : c.payloadAvail;
+  const img = c.codec === 1 ? decodePhoto(c.payload, lim) : decodePalette(c.payload, lim);
+  img.caption = c.caption; img.codec = c.codec; img.bytes = c.N;
+  return img;
+}
+
+/* ---------------- GF(256) Reed-Solomon erasure code (Cauchy) ---------------- */
+const GEXP = new Uint8Array(512), GLOG = new Uint8Array(256);
+(() => { let x = 1; for (let i = 0; i < 255; i++) { GEXP[i] = x; GLOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; } for (let i = 255; i < 512; i++) GEXP[i] = GEXP[i - 255]; })();
+const gmul = (a, b) => (a && b) ? GEXP[GLOG[a] + GLOG[b]] : 0;
+const ginv = a => GEXP[255 - GLOG[a]];
+const cauchy = (j, i, p) => ginv(j ^ (p + i));
+function rsEncode(data, k, p, L) { // data: Uint8Array k*L -> parity arrays
+  const par = [];
+  for (let j = 0; j < p; j++) {
+    const o = new Uint8Array(L);
+    for (let i = 0; i < k; i++) { const c = cauchy(j, i, p), d = data.subarray(i * L, i * L + L); for (let b = 0; b < L; b++) o[b] ^= gmul(c, d[b]); }
+    par.push(o);
+  }
+  return par;
+}
+function rsDecode(chunks, k, n, L) { // chunks: Map idx->Uint8Array ; returns Uint8Array k*L or null
+  const p = n - k, have = [...chunks.keys()].sort((a, b) => a - b);
+  if (have.length < k) return null;
+  const out = new Uint8Array(k * L);
+  const missing = [];
+  for (let i = 0; i < k; i++) { if (chunks.has(i)) out.set(chunks.get(i), i * L); else missing.push(i); }
+  if (!missing.length) return out;
+  const rows = have.filter(i => i < k).concat(have.filter(i => i >= k)).slice(0, k);
+  // matrix rows (k x k) augmented with identity
+  const A = rows.map(r => { const row = new Uint8Array(2 * k); if (r < k) row[r] = 1; else for (let i = 0; i < k; i++) row[i] = cauchy(r - k, i, p); return row; });
+  A.forEach((row, i) => row[k + i] = 1);
+  for (let col = 0; col < k; col++) {
+    let piv = col; while (piv < k && !A[piv][col]) piv++;
+    if (piv === k) return null;
+    [A[col], A[piv]] = [A[piv], A[col]];
+    const iv = ginv(A[col][col]);
+    for (let c = 0; c < 2 * k; c++) A[col][c] = gmul(A[col][c], iv);
+    for (let r = 0; r < k; r++) if (r !== col && A[r][col]) { const f = A[r][col]; for (let c = 0; c < 2 * k; c++) A[r][c] ^= gmul(f, A[col][c]); }
+  }
+  for (const i of missing) {
+    const o = new Uint8Array(L);
+    for (let r = 0; r < k; r++) { const f = A[i][k + r]; if (!f) continue; const src = chunks.get(rows[r]); for (let b = 0; b < L; b++) o[b] ^= gmul(f, src[b]); }
+    out.set(o, i * L);
+  }
+  return out;
+}
+
+/* ---------------- Text encodings ---------------- */
+const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const B85 = B62 + '!#$%&()*+,./:;<=>?^_{|}';
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const R85 = new Int16Array(128).fill(-1), R64 = new Int16Array(128).fill(-1);
+for (let i = 0; i < 85; i++) R85[B85.charCodeAt(i)] = i;
+for (let i = 0; i < 64; i++) R64[B64.charCodeAt(i)] = i;
+function enc85(b) {
+  let s = '';
+  for (let i = 0; i < b.length; i += 4) {
+    const r = Math.min(4, b.length - i);
+    let v = 0; for (let j = 0; j < 4; j++) v = v * 256 + (j < r ? b[i + j] : 0);
+    const d = []; for (let j = 0; j < 5; j++) { d.unshift(v % 85); v = Math.floor(v / 85); }
+    for (let j = 0; j < r + 1; j++) s += B85[d[j]];
+  }
+  return s;
+}
+function dec85(s) {
+  const rem = s.length % 5; if (rem === 1) return null;
+  const out = [];
+  for (let i = 0; i < s.length; i += 5) {
+    const r = Math.min(5, s.length - i);
+    let v = 0;
+    for (let j = 0; j < 5; j++) { const c = j < r ? s.charCodeAt(i + j) : 0; const d = j < r ? (c < 128 ? R85[c] : -1) : 84; if (d < 0) return null; v = v * 85 + d; }
+    if (v > 0xFFFFFFFF) return null;
+    const bytes = [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+    for (let j = 0; j < r - 1; j++) out.push(bytes[j]);
+  }
+  return Uint8Array.from(out);
+}
+function enc64(b) {
+  let s = '';
+  for (let i = 0; i < b.length; i += 3) {
+    const r = Math.min(3, b.length - i), v = (b[i] << 16) | ((r > 1 ? b[i + 1] : 0) << 8) | (r > 2 ? b[i + 2] : 0);
+    for (let j = 0; j < r + 1; j++) s += B64[(v >> (18 - 6 * j)) & 63];
+  }
+  return s;
+}
+function dec64(s) {
+  if (s.length % 4 === 1) return null;
+  const out = [];
+  for (let i = 0; i < s.length; i += 4) {
+    const r = Math.min(4, s.length - i); let v = 0;
+    for (let j = 0; j < 4; j++) { let d = 0; if (j < r) { const c = s.charCodeAt(i + j); d = c < 128 ? R64[c] : -1; if (d < 0) return null; } v = (v << 6) | d; }
+    for (let j = 0; j < r - 1; j++) out.push((v >> (16 - 8 * j)) & 255);
+  }
+  return Uint8Array.from(out);
+}
+function bytesPerChunk(maxChars, encoding) {
+  const P = maxChars - HEADER_LEN;
+  if (encoding === 'b64') return 3 * Math.floor(P / 4) + Math.max(0, (P % 4) - 1);
+  return 4 * Math.floor(P / 5) + ((P % 5) >= 2 ? (P % 5) - 1 : 0);
+}
+const HEADER_LEN = 7;
+
+/* ---------------- Chunking ---------------- */
+function randomId() { const a = new Uint8Array(2); (root.crypto || require('crypto').webcrypto).getRandomValues(a); return B62[a[0] % 62] + B62[a[1] % 62]; }
+function makeChunks(container, opt) {
+  const enc = opt.encoding === 'b64' ? 'b64' : 'b85';
+  const Lmax = bytesPerChunk(opt.maxChars, enc);
+  if (Lmax < 8) throw new Error('Message length is too short');
+  const k = Math.ceil(container.length / Lmax), p = opt.parity || 0, n = k + p;
+  const L = Math.ceil(container.length / k); // balance chunk sizes so the last one isn't mostly padding
+  if (n > 61) throw new Error(`Needs ${n} messages; the limit is 61. Make the image smaller.`);
+  const data = new Uint8Array(k * L); data.set(container);
+  const parts = [];
+  for (let i = 0; i < k; i++) parts.push(data.subarray(i * L, i * L + L));
+  parts.push(...rsEncode(data, k, p, L));
+  const id = opt.id || randomId(), mark = enc === 'b64' ? 'b' : 'm';
+  return parts.map((b, i) => ({ idx: i, parity: i >= k, text: '~' + mark + id + B62[i] + B62[k] + B62[n] + (enc === 'b64' ? enc64(b) : enc85(b)) }));
+}
+const CHUNK_RE = /~([mb])([0-9A-Za-z]{2})([0-9A-Za-z])([0-9A-Za-z])([0-9A-Za-z])([^\s~]+)/g;
+function parseChunks(text) {
+  const found = [], bad = [];
+  for (const m of text.matchAll(CHUNK_RE)) {
+    const idx = B62.indexOf(m[3]), k = B62.indexOf(m[4]), n = B62.indexOf(m[5]);
+    const bytes = m[1] === 'b' ? dec64(m[6]) : dec85(m[6]);
+    if (!bytes || k < 1 || n < k || idx >= n) { bad.push(m[0]); continue; }
+    found.push({ key: `${m[1]}${m[2]}${k}.${n}.${bytes.length}`, id: m[2], enc: m[1], idx, k, n, L: bytes.length, bytes, text: m[0] });
+  }
+  return { found, bad };
+}
+// group: {k,n,L,chunks: Map idx->bytes}
+function assemble(group) {
+  const { k, n, L, chunks } = group;
+  let buf = null, avail = 0, recovered = false;
+  if (chunks.size >= k) { buf = rsDecode(chunks, k, n, L); avail = buf ? buf.length : 0; recovered = buf && [...Array(k).keys()].some(i => !chunks.has(i)); }
+  if (!buf) { // contiguous prefix of data chunks
+    let m = 0; while (m < k && chunks.has(m)) m++;
+    buf = new Uint8Array(k * L);
+    for (let i = 0; i < m; i++) buf.set(chunks.get(i), i * L);
+    avail = m * L;
+  }
+  return { buf, avail, complete: chunks.size >= k && avail === k * L, recovered };
+}
+
+/* ---------------- LoRa airtime ---------------- */
+function loraToA(bytes, sf, bwKhz, cr, preamble) {
+  const bw = bwKhz * 1000, ts = Math.pow(2, sf) / bw, de = ts > 0.016 ? 1 : 0;
+  const nPay = 8 + Math.max(Math.ceil((8 * bytes - 4 * sf + 28 + 16) / (4 * (sf - 2 * de))) * (cr + 4), 0);
+  return (preamble + 4.25) * ts + nPay * ts;
+}
+// approximate on-air packet size for a channel text message of msgChars (ASCII)
+function channelPacketBytes(msgChars, nameLen) {
+  const plain = 4 + 1 + nameLen + 2 + msgChars;
+  return 1 + 1 + 1 + 2 + Math.ceil(plain / 16) * 16;
+}
+
+const API = { Enc, Dec, encodePalette, decodePalette, encodePhoto, decodePhoto, buildContainer, parseContainer, decodeImage, rsEncode, rsDecode, enc85, dec85, enc64, dec64, bytesPerChunk, makeChunks, parseChunks, assemble, loraToA, channelPacketBytes, uniqueColors, HEADER_LEN, B62 };
+if (typeof module !== 'undefined') module.exports = API; else root.MP = API;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script>(function () {
+'use strict';
+const PRISTINE = '<!doctype html>\n' + document.documentElement.outerHTML;
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+};
+
+/* ------------------------------ settings ------------------------------ */
+const DEFAULTS = {
+  style: 'photo', maxDim: 64, quality: 35, grayPhoto: false, deblock: true,
+  colors: 4, grayPal: false, dither: 'none', ditherStr: 0.75,
+  bright: 0, contrast: 0, sat: 0, sharpen: 25, autoLevels: false,
+  fit: false, fitN: 4, caption: '',
+  maxChars: 135, parity: 1, encoding: 'b85',
+  region: 'us', sf: 7, bw: 62.5, cr: 5, nameLen: 8, repeaters: 4, link: '',
+  compare: false, smooth: false
+};
+let S = Object.assign({}, DEFAULTS, store.get('meshpix.settings', {}));
+S.caption = '';
+const saveS = () => store.set('meshpix.settings', Object.assign({}, S, { caption: '' }));
+
+const PRESETS = {
+  icon: { style: 'pixel', maxDim: 32, colors: 4, grayPal: false, dither: 'none', sharpen: 30 },
+  thumb: { style: 'photo', maxDim: 48, quality: 30, grayPhoto: false, sharpen: 25 },
+  photo: { style: 'photo', maxDim: 72, quality: 35, grayPhoto: false, sharpen: 25 },
+  detail: { style: 'photo', maxDim: 112, quality: 45, grayPhoto: false, sharpen: 20 },
+  sketch: { style: 'pixel', maxDim: 96, colors: 1, grayPal: true, dither: 'fs', ditherStr: 0.8, sharpen: 40 },
+  meme: { style: 'pixel', maxDim: 128, colors: 3, grayPal: false, dither: 'none', sharpen: 0 }
+};
+
+/* ------------------------------ toast / dialog ------------------------------ */
+let toastT;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+function dialog(node) {
+  const d = $('dlg'), b = $('dlgBody'); b.innerHTML = ''; b.append(node);
+  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+}
+$('dlgClose').onclick = () => { const d = $('dlg'); if (d.close) d.close(); else d.removeAttribute('open'); };
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) { /* fall through */ }
+  const ta = document.createElement('textarea');
+  ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, t.length);
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  ta.remove();
+  if (!ok) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = '<h3 style="margin-bottom:8px">Copy this by hand</h3><p class="hint small">Your browser blocked automatic copying here. The text is selected: copy it, then close this box.</p>';
+    const area = document.createElement('textarea'); area.value = t; area.rows = 5; area.style.fontFamily = 'var(--mono)'; area.style.fontSize = '.8rem';
+    wrap.append(area); dialog(wrap); setTimeout(() => { area.focus(); area.select(); }, 50);
+  }
+  return ok;
+}
+
+/* ------------------------------ downloads capability ------------------------------ */
+let dlPromise = null;
+function getDownloads() {
+  if (!window.claude || typeof window.claude.use !== 'function') return Promise.resolve(undefined);
+  if (!dlPromise) dlPromise = window.claude.use('downloads').catch(() => null);
+  return Promise.race([dlPromise, new Promise(r => setTimeout(() => r(null), 2500))]);
+}
+getDownloads();
+async function offerFile(filename, blob, fallbackImgUrl) {
+  const dl = await getDownloads();
+  if (dl) {
+    try { await dl.save({ filename, data: blob }); toast('Saved ' + filename); return; }
+    catch (e) { if (e && (e.code === 'declined' || e.code === 'rate_limited')) return; }
+  }
+  if (dl === undefined) { // standalone copy of the page: normal download works
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000); return;
+  }
+  if (fallbackImgUrl) {
+    const w = document.createElement('div');
+    w.innerHTML = '<h3 style="margin-bottom:8px">Save this picture</h3><p class="hint small">Long-press or right-click the picture and choose save.</p>';
+    const img = new Image(); img.src = fallbackImgUrl; img.alt = 'Received picture'; w.append(img); dialog(w);
+  } else toast('Saving files is not available here.');
+}
+
+/* ------------------------------ tabs + theme ------------------------------ */
+const TABS = ['send', 'receive', 'help'];
+function showTab(name) {
+  if (!TABS.includes(name)) name = 'send';
+  TABS.forEach(t => { $('tab-' + t).hidden = t !== name; $('t-' + t).setAttribute('aria-selected', t === name); });
+  if (name === 'send') requestAnimationFrame(drawCrop);
+  try { history.replaceState(null, '', '#' + name); } catch (e) { /* ignore */ }
+}
+TABS.forEach(t => $('t-' + t).onclick = () => showTab(t));
+showTab((location.hash || '').replace('#', ''));
+const themePref = store.get('meshpix.theme', null);
+if (themePref) document.documentElement.dataset.theme = themePref;
+$('themeBtn').onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next; store.set('meshpix.theme', next);
+  if (rotCanvas) drawCrop();
+};
+
+/* ------------------------------ image loading ------------------------------ */
+let SRC = null, rotCanvas = null;
+const crop = { aspect: null, zoom: 1, cx: 0.5, cy: 0.5, rot: 0 };
+function loadViaImg(url) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; }); }
+async function loadFile(file) {
+  if (!file) return;
+  try {
+    let img;
+    try { img = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch (e) { img = await loadViaImg(URL.createObjectURL(file)); }
+    setSource(img, file.name || 'Pasted picture');
+  } catch (e) { toast("That file couldn't be opened as a picture."); }
+}
+function setSource(img, name) {
+  const w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
+  const s = Math.min(1, 2048 / Math.max(w, h));
+  const c = mk(w * s, h * s), g = c.getContext('2d');
+  g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, c.width, c.height);
+  SRC = { base: c, name };
+  Object.assign(crop, { zoom: 1, cx: 0.5, cy: 0.5, rot: 0 });
+  $('zoom').value = 1; $('zoomOut').textContent = '1.0×';
+  buildRot();
+  $('drop').hidden = true; $('cropArea').hidden = false;
+  $('srcName').textContent = name.length > 34 ? name.slice(0, 31) + '…' : name;
+  drawCrop(); schedule();
+}
+function buildRot() {
+  const b = SRC.base, r = crop.rot;
+  const c = (r % 180) ? mk(b.height, b.width) : mk(b.width, b.height), g = c.getContext('2d');
+  g.translate(c.width / 2, c.height / 2); g.rotate(r * Math.PI / 180); g.drawImage(b, -b.width / 2, -b.height / 2);
+  rotCanvas = c; smallCache.key = null;
+}
+$('fileIn').onchange = e => loadFile(e.target.files[0]);
+$('fileIn2').onchange = e => loadFile(e.target.files[0]);
+$('camIn').onchange = e => loadFile(e.target.files[0]);
+const drop = $('drop');
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => { const f = [...(e.dataTransfer.files || [])].find(f => f.type.startsWith('image/')); if (f) loadFile(f); });
+document.addEventListener('dragover', e => { if (!$('tab-send').hidden) e.preventDefault(); });
+document.addEventListener('drop', e => { if ($('tab-send').hidden || drop.contains(e.target)) return; e.preventDefault(); const f = [...(e.dataTransfer.files || [])].find(f => f.type.startsWith('image/')); if (f) loadFile(f); });
+
+document.addEventListener('paste', e => {
+  const items = [...(e.clipboardData ? e.clipboardData.items : [])];
+  if (!$('tab-send').hidden) {
+    const it = items.find(i => i.kind === 'file' && i.type.startsWith('image/'));
+    if (it) { e.preventDefault(); loadFile(it.getAsFile()); }
+  } else if (!$('tab-receive').hidden && e.target !== $('pasteBox')) {
+    const txt = e.clipboardData && e.clipboardData.getData('text');
+    if (txt) { e.preventDefault(); ingest(txt); }
+  }
+});
+
+function sampleImage() {
+  const c = mk(640, 480), g = c.getContext('2d');
+  const sky = g.createLinearGradient(0, 0, 0, 330); sky.addColorStop(0, '#2B4C8C'); sky.addColorStop(0.6, '#E7866B'); sky.addColorStop(1, '#F6C66F');
+  g.fillStyle = sky; g.fillRect(0, 0, 640, 480);
+  g.fillStyle = '#FFE7A8'; g.beginPath(); g.arc(430, 250, 58, 0, Math.PI * 2); g.fill();
+  const hill = (col, pts) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, 480); pts.forEach(([x, y]) => g.lineTo(x, y)); g.lineTo(640, 480); g.fill(); };
+  hill('#5B4A6E', [[0, 300], [90, 240], [180, 285], [300, 215], [420, 290], [540, 235], [640, 280]]);
+  hill('#3A3552', [[0, 350], [120, 310], [260, 345], [380, 300], [520, 340], [640, 315]]);
+  hill('#20283A', [[0, 410], [160, 380], [320, 400], [470, 370], [640, 395]]);
+  g.strokeStyle = '#141A26'; g.lineWidth = 5; g.beginPath();
+  g.moveTo(175, 395); g.lineTo(205, 140); g.lineTo(235, 395); g.stroke();
+  g.lineWidth = 3; for (let y = 170; y < 390; y += 34) { const t = (y - 140) / 255, dx = 30 * t; g.beginPath(); g.moveTo(205 - dx, y); g.lineTo(205 + dx, y + 30); g.moveTo(205 + dx, y); g.lineTo(205 - dx, y + 30); g.stroke(); }
+  g.fillStyle = '#FF4A3D'; g.beginPath(); g.arc(205, 136, 7, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4;
+  [30, 52, 74].forEach(r => { g.beginPath(); g.arc(205, 136, r, -0.9, -0.2); g.stroke(); g.beginPath(); g.arc(205, 136, r, Math.PI + 0.2, Math.PI + 0.9); g.stroke(); });
+  return c;
+}
+$('sampleBtn').onclick = () => { setSource(sampleImage(), 'Sample: tower at sunset'); };
+
+/* ------------------------------ crop UI ------------------------------ */
+function cropRect() {
+  const RW = rotCanvas.width, RH = rotCanvas.height, a = crop.aspect || RW / RH;
+  let w, h; if (RW / RH > a) { h = RH; w = RH * a; } else { w = RW; h = RW / a; }
+  w /= crop.zoom; h /= crop.zoom;
+  const x = clamp(crop.cx * RW - w / 2, 0, RW - w), y = clamp(crop.cy * RH - h / 2, 0, RH - h);
+  crop.cx = (x + w / 2) / RW; crop.cy = (y + h / 2) / RH;
+  return { x, y, w, h };
+}
+let cropScale = 1;
+function drawCrop() {
+  if (!rotCanvas || $('cropArea').hidden) return;
+  const cv = $('cropCanvas'), wrapW = cv.parentElement.clientWidth || 400;
+  const RW = rotCanvas.width, RH = rotCanvas.height, maxH = Math.min(460, window.innerHeight * 0.55);
+  let dw = wrapW, dh = wrapW * RH / RW; if (dh > maxH) { dh = maxH; dw = maxH * RW / RH; }
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(dw * dpr); cv.height = Math.round(dh * dpr);
+  cv.style.width = dw + 'px'; cv.style.height = dh + 'px'; cv.style.margin = '0 auto';
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.imageSmoothingQuality = 'high'; g.drawImage(rotCanvas, 0, 0, dw, dh);
+  const r = cropRect(), s = dw / RW; cropScale = s;
+  const x = r.x * s, y = r.y * s, w = r.w * s, h = r.h * s;
+  g.fillStyle = 'rgba(8,14,22,.58)';
+  g.fillRect(0, 0, dw, y); g.fillRect(0, y + h, dw, dh - y - h); g.fillRect(0, y, x, h); g.fillRect(x + w, y, dw - x - w, h);
+  g.strokeStyle = 'rgba(255,255,255,.45)'; g.lineWidth = 1; g.beginPath();
+  for (let i = 1; i < 3; i++) { g.moveTo(x + w * i / 3, y); g.lineTo(x + w * i / 3, y + h); g.moveTo(x, y + h * i / 3); g.lineTo(x + w, y + h * i / 3); }
+  g.stroke();
+  g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, w - 2, h - 2);
+}
+window.addEventListener('resize', () => requestAnimationFrame(drawCrop));
+(() => {
+  const cv = $('cropCanvas'); let drag = null;
+  cv.addEventListener('pointerdown', e => { if (!rotCanvas) return; drag = { x: e.clientX, y: e.clientY, cx: crop.cx, cy: crop.cy }; cv.setPointerCapture(e.pointerId); cv.classList.add('dragging'); });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    crop.cx = drag.cx + (e.clientX - drag.x) / (cropScale * rotCanvas.width);
+    crop.cy = drag.cy + (e.clientY - drag.y) / (cropScale * rotCanvas.height);
+    drawCrop(); schedule();
+  });
+  const end = () => { drag = null; cv.classList.remove('dragging'); };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.tabIndex = 0;
+  cv.addEventListener('keydown', e => {
+    const st = 0.02, m = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key];
+    if (!m || !rotCanvas) return; e.preventDefault(); crop.cx += m[0]; crop.cy += m[1]; drawCrop(); schedule();
+  });
+})();
+$('zoom').oninput = e => { crop.zoom = +e.target.value; $('zoomOut').textContent = crop.zoom.toFixed(1) + '×'; drawCrop(); schedule(); };
+$('rotBtn').onclick = () => { if (!SRC) return; crop.rot = (crop.rot + 90) % 360; buildRot(); drawCrop(); schedule(); };
+$('aspectChips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  [...$('aspectChips').children].forEach(c => c.setAttribute('aria-pressed', c === b));
+  crop.aspect = b.dataset.a === 'orig' ? null : +b.dataset.a;
+  if (rotCanvas) { drawCrop(); schedule(); }
+});
+
+/* ------------------------------ image processing ------------------------------ */
+function resample(src, sx, sy, sw, sh, tw, th) {
+  let cur = src, cx = sx, cy = sy, cw = sw, ch = sh;
+  while (cw / tw > 2.2 || ch / th > 2.2) {
+    const nw = Math.max(tw, Math.round(cw / 2)), nh = Math.max(th, Math.round(ch / 2));
+    const c = mk(nw, nh), g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+    g.drawImage(cur, cx, cy, cw, ch, 0, 0, nw, nh);
+    cur = c; cx = 0; cy = 0; cw = nw; ch = nh;
+  }
+  const out = mk(tw, th), g = out.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#fff'; g.fillRect(0, 0, tw, th); g.imageSmoothingQuality = 'high';
+  g.drawImage(cur, cx, cy, cw, ch, 0, 0, tw, th);
+  return g.getImageData(0, 0, tw, th);
+}
+const smallCache = { key: null, img: null };
+function getSmall(W, H) {
+  const r = cropRect(), key = [crop.rot, r.x.toFixed(1), r.y.toFixed(1), r.w.toFixed(1), r.h.toFixed(1), W, H].join();
+  if (smallCache.key !== key) { smallCache.key = key; smallCache.img = resample(rotCanvas, r.x, r.y, r.w, r.h, W, H); }
+  return smallCache.img;
+}
+function adjust(d) {
+  const a = d.data, N = a.length;
+  if (S.autoLevels) {
+    const hist = new Uint32Array(256), px = N / 4;
+    for (let i = 0; i < N; i += 4) hist[Math.round(0.299 * a[i] + 0.587 * a[i + 1] + 0.114 * a[i + 2])]++;
+    let lo = 0, hi = 255, acc = 0;
+    while (lo < 255 && (acc += hist[lo]) < px * 0.01) lo++;
+    acc = 0; while (hi > 0 && (acc += hist[hi]) < px * 0.01) hi--;
+    if (hi - lo > 12) { const f = 255 / (hi - lo); for (let i = 0; i < N; i += 4) for (let c = 0; c < 3; c++) a[i + c] = (a[i + c] - lo) * f; }
+  }
+  if (S.bright || S.contrast || S.sat) {
+    const br = S.bright * 1.28, c = S.contrast * 2.55, cf = (259 * (c + 255)) / (255 * (259 - c)), s = 1 + S.sat / 100;
+    for (let i = 0; i < N; i += 4) {
+      let r = a[i] + br, g = a[i + 1] + br, b = a[i + 2] + br;
+      r = cf * (r - 128) + 128; g = cf * (g - 128) + 128; b = cf * (b - 128) + 128;
+      const L = 0.299 * r + 0.587 * g + 0.114 * b;
+      a[i] = L + (r - L) * s; a[i + 1] = L + (g - L) * s; a[i + 2] = L + (b - L) * s;
+    }
+  }
+  if (S.sharpen > 0) {
+    const W = d.width, H = d.height, src = new Uint8ClampedArray(a), amt = S.sharpen / 100 * 1.4;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) for (let c = 0; c < 3; c++) {
+      let s = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += src[(clamp(y + dy, 0, H - 1) * W + clamp(x + dx, 0, W - 1)) * 4 + c];
+      const i = (y * W + x) * 4 + c; a[i] = src[i] + amt * (src[i] - s / 9);
+    }
+  }
+}
+function dims(maxDim, r) {
+  if (r.w >= r.h) return [maxDim, Math.max(1, Math.round(maxDim * r.h / r.w))];
+  return [Math.max(1, Math.round(maxDim * r.w / r.h)), maxDim];
+}
+function encodeWith(maxDim, quality) {
+  const r = cropRect(), [W, H] = dims(maxDim, r);
+  const base = getSmall(W, H), img = new ImageData(new Uint8ClampedArray(base.data), W, H);
+  adjust(img);
+  let payload, codec;
+  if (S.style === 'photo') { payload = MP.encodePhoto(img.data, W, H, { quality, gray: S.grayPhoto, deblock: S.deblock }); codec = 1; }
+  else { payload = MP.encodePalette(img.data, W, H, { colors: 1 << S.colors, gray: S.grayPal, dither: S.dither, ditherStrength: S.ditherStr }); codec = 2; }
+  const cont = MP.buildContainer(codec, S.caption, payload);
+  const L = MP.bytesPerChunk(S.maxChars, S.encoding), k = Math.ceil(cont.length / L);
+  return { W, H, cont, k, n: k + S.parity, maxDim, quality };
+}
+
+/* ------------------------------ encode pipeline ------------------------------ */
+let schedT = 0;
+function schedule() { clearTimeout(schedT); schedT = setTimeout(() => requestAnimationFrame(run), 70); }
+let current = null; // {res, chunks, copied:Set}
+function run() {
+  syncOutputs();
+  if (!rotCanvas) return;
+  let res, note = '', auto = null;
+  try {
+    const budget = S.fitN - S.parity;
+    if (S.fit && budget < 1) { note = 'Recovery messages use up the whole budget. Allow more messages or use fewer recovery messages.'; res = encodeWith(S.maxDim, S.quality); }
+    else if (S.fit && S.style === 'photo') {
+      for (let dim = S.maxDim; dim >= 12 && !res; dim -= 8) {
+        const lo1 = encodeWith(dim, 1);
+        if (lo1.k > budget) continue;
+        let lo = 1, hi = 95, best = lo1;
+        while (lo < hi) { const mid = Math.ceil((lo + hi) / 2), r = encodeWith(dim, mid); if (r.k <= budget) { lo = mid; best = r; } else hi = mid - 1; }
+        res = best; auto = { q: best.quality, dim, shrunk: dim !== S.maxDim };
+      }
+      if (!res) { res = encodeWith(12, 1); note = `Even the smallest photo needs more than ${budget} picture messages here.`; }
+    } else if (S.fit) {
+      let lo = 8, hi = S.maxDim, best = null;
+      const r8 = encodeWith(8, S.quality);
+      if (r8.k <= budget) {
+        best = r8;
+        while (lo < hi) { const mid = Math.ceil((lo + hi) / 2), r = encodeWith(mid, S.quality); if (r.k <= budget) { lo = mid; best = r; } else hi = mid - 1; }
+        res = best; auto = { dim: best.maxDim, shrunk: best.maxDim !== S.maxDim };
+      } else { res = r8; note = 'Even an 8-pixel picture needs more messages. Use fewer colours or turn off dithering.'; }
+    } else res = encodeWith(S.maxDim, S.quality);
+  } catch (e) { showWarn('Something went wrong while encoding: ' + e.message); return; }
+
+  // preview
+  const dec = MP.decodeImage(res.cont);
+  const out = $('pvOut'); out.width = dec.W; out.height = dec.H;
+  out.getContext('2d').putImageData(new ImageData(dec.rgba, dec.W, dec.H), 0, 0);
+  out.hidden = false; $('pvEmpty').hidden = true;
+  out.style.width = '100%'; out.style.maxHeight = '440px'; out.style.objectFit = 'contain';
+  $('pvCap').textContent = `${dec.W} × ${dec.H} px, ${dec.info}. Decoded exactly as the receiver will see it.`;
+  if (S.compare) drawOrig();
+
+  // outputs reflecting auto choices
+  $('dimOut').textContent = `${res.W} × ${res.H} px` + (auto && auto.shrunk ? ' (shrunk to fit)' : '');
+  $('qOut').textContent = auto && auto.q != null ? `${auto.q} (auto)` : String(S.quality);
+  if (auto && auto.q != null) $('quality').value = auto.q;
+
+  // chunks
+  let chunks;
+  try { chunks = MP.makeChunks(res.cont, { maxChars: S.maxChars, encoding: S.encoding, parity: S.parity }); }
+  catch (e) { showWarn(e.message); renderStats(res, null); setMessages(null); return; }
+  const sameAsBefore = current && current.bytes.length === res.cont.length && current.bytes.every((v, i) => v === res.cont[i]) && current.parity === S.parity && current.maxChars === S.maxChars && current.encoding === S.encoding;
+  if (!sameAsBefore) current = { bytes: res.cont, chunks, copied: new Set(), parity: S.parity, maxChars: S.maxChars, encoding: S.encoding, res };
+  renderStats(res, chunks);
+  if (!note && chunks.length > 8) note = `That's ${chunks.length} messages. On a shared mesh, try a smaller size or lower quality, or turn on Fit into a set number of messages.`;
+  if (note) showWarn(note); else $('warnLine').hidden = true;
+  setMessages(current);
+}
+function showWarn(t) { const w = $('warnLine'); w.textContent = t; w.hidden = false; }
+function drawOrig() {
+  if (!rotCanvas) return;
+  const r = cropRect(), [W, H] = dims(320, r), img = resample(rotCanvas, r.x, r.y, r.w, r.h, W, H);
+  const c = $('pvOrig'); c.width = W; c.height = H; c.getContext('2d').putImageData(img, 0, 0);
+  c.style.width = '100%'; c.style.maxHeight = '440px'; c.style.objectFit = 'contain'; c.style.imageRendering = 'auto';
+}
+function radio() {
+  if (S.region === 'us') return { sf: 7, bw: 62.5, cr: 1 };
+  if (S.region === 'eu') return { sf: 8, bw: 62.5, cr: 4 };
+  return { sf: clamp(+S.sf || 7, 5, 12), bw: clamp(+S.bw || 62.5, 7.8, 500), cr: clamp((+S.cr || 5) - 4, 1, 4) };
+}
+function airtime(len) { const r = radio(); return MP.loraToA(MP.channelPacketBytes(len, clamp(+S.nameLen || 8, 1, 32)), r.sf, r.bw, r.cr, 16); }
+function fmtS(s) { return s < 10 ? s.toFixed(1) + ' s' : Math.round(s) + ' s'; }
+function renderStats(res, chunks) {
+  $('stBytes').textContent = res.cont.length;
+  const n = chunks ? chunks.length : res.n;
+  $('stMsgs').textContent = n;
+  $('stMsgsL').textContent = S.parity ? `messages (${res.k} + ${S.parity} recovery)` : 'messages';
+  $('stMsgBox').classList.toggle('warn', n > 8);
+  if (chunks) {
+    const t = chunks.reduce((s, c) => s + airtime(c.text.length), 0);
+    $('stAir').textContent = fmtS(t);
+    const reps = clamp(+S.repeaters || 0, 0, 40);
+    $('stAirL').textContent = reps ? `on air per hop, about ${fmtS(t * (reps + 1))} across ${reps} repeater${reps > 1 ? 's' : ''}` : 'on air';
+  }
+  $('parHelp').textContent = S.parity ? `Any ${res.k} of the ${res.k + S.parity} messages rebuild the picture, so up to ${S.parity} can go missing.` : 'No spares: every message has to arrive.';
+  $('needK').textContent = res.k;
+}
+
+/* ------------------------------ message list ------------------------------ */
+let paceT = 0, paceUntil = 0;
+function paceGap() {
+  if (!current) return 0;
+  const reps = clamp(+S.repeaters || 0, 0, 40);
+  return Math.ceil(airtime(current.chunks[0].text.length) * (reps + 1) + 1);
+}
+function setMessages(cur) {
+  $('msgEmpty').hidden = !!cur; $('msgBody').hidden = !cur;
+  if (!cur) return;
+  const strip = $('sendStrip'); strip.innerHTML = '';
+  const list = $('msgList'); list.innerHTML = '';
+  cur.chunks.forEach((c, i) => {
+    const t = document.createElement('span');
+    t.className = 'tile' + (c.parity ? ' rec' : '') + (cur.copied.has(i) ? ' on' : '');
+    t.textContent = i + 1; t.title = c.parity ? `Recovery message ${i + 1}` : `Message ${i + 1}`;
+    strip.append(t);
+    const li = document.createElement('li'); li.className = 'msg' + (cur.copied.has(i) ? ' copied' : '');
+    const tile = t.cloneNode(true); tile.classList.remove('on');
+    const code = document.createElement('code'); code.textContent = c.text; code.title = c.text;
+    const b = document.createElement('button'); b.className = 'btn ghost'; b.textContent = cur.copied.has(i) ? 'Copied' : 'Copy';
+    b.onclick = () => copyChunk(i);
+    li.append(tile, code, b); list.append(li);
+  });
+  const next = [...cur.chunks.keys()].find(i => !cur.copied.has(i));
+  const nb = $('nextBtn');
+  if (next === undefined) { nb.textContent = 'All copied. Start over'; nb.dataset.i = -1; }
+  else { nb.textContent = `Copy message ${next + 1} of ${cur.chunks.length}`; nb.dataset.i = next; }
+}
+async function copyChunk(i) {
+  if (!current) return;
+  const ok = await copyText(current.chunks[i].text);
+  current.copied.add(i); setMessages(current);
+  if (ok) toast(`Message ${i + 1} copied. Paste it into MeshCore.`);
+  startPace();
+}
+function startPace() {
+  const gap = paceGap(); paceUntil = Date.now() + gap * 1000;
+  clearInterval(paceT);
+  const tick = () => {
+    const left = Math.ceil((paceUntil - Date.now()) / 1000), p = $('pace');
+    if (!current || [...current.chunks.keys()].every(i => current.copied.has(i))) { p.textContent = 'All done'; p.classList.remove('wait'); clearInterval(paceT); return; }
+    if (left > 0) { p.textContent = `Give the mesh ${left} s`; p.classList.add('wait'); }
+    else { p.textContent = 'Ready for the next one'; p.classList.remove('wait'); clearInterval(paceT); }
+  };
+  tick(); paceT = setInterval(tick, 250);
+}
+$('nextBtn').onclick = () => {
+  if (!current) return;
+  const i = +$('nextBtn').dataset.i;
+  if (i < 0) { current.copied.clear(); $('pace').textContent = ''; setMessages(current); return; }
+  copyChunk(i);
+};
+$('resetCopied').onclick = () => { if (current) { current.copied.clear(); $('pace').textContent = ''; setMessages(current); } };
+$('copyAllBtn').onclick = async () => { if (!current) return; if (await copyText(current.chunks.map(c => c.text).join('\n'))) toast(`All ${current.chunks.length} messages copied, one per line.`); };
+$('introBtn').onclick = async () => {
+  if (!current) return toast('Pick a picture first.');
+  const n = current.chunks.length, cap = S.caption.trim();
+  let t = `📷 Picture coming in ${n} message${n > 1 ? 's' : ''}${cap ? ': "' + cap + '"' : ''}. Paste them into Meshpix`;
+  t += S.link.trim() ? ` at ${S.link.trim()}` : ' to see it.';
+  if (await copyText(t)) toast('Heads-up message copied.');
+};
+$('testBtn').onclick = () => {
+  if (!current) return toast('Pick a picture first.');
+  const idx = [...current.chunks.keys()], drop = [];
+  for (let d = 0; d < S.parity && idx.length > 1; d++) drop.push(idx.splice(Math.floor(Math.random() * idx.length), 1)[0]);
+  const text = idx.sort(() => Math.random() - 0.5).map(i => 'You: ' + current.chunks[i].text).join('\n');
+  showTab('receive'); ingest(text);
+  toast(drop.length ? `Test: lost message${drop.length > 1 ? 's' : ''} ${drop.sort((a, b) => a - b).map(d => d + 1).join(' and ')} on purpose` : 'Test: all messages delivered');
+};
+
+/* ------------------------------ settings binding ------------------------------ */
+function seg(id, key, after) {
+  const el = $(id);
+  el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S[key] = b.dataset.v; saveS(); syncControls(); after && after(); schedule(); });
+}
+function range(id, key, num = true) { $(id).addEventListener('input', e => { S[key] = num ? +e.target.value : e.target.value; saveS(); syncOutputs(); schedule(); }); }
+function check(id, key) { $(id).addEventListener('change', e => { S[key] = e.target.checked; saveS(); syncControls(); schedule(); }); }
+seg('styleSeg', 'style'); seg('ditherSeg', 'dither'); seg('encSeg', 'encoding');
+['maxDim', 'quality', 'colors', 'ditherStr', 'bright', 'contrast', 'sat', 'sharpen', 'maxChars', 'parity'].forEach(k => range(k, k));
+['grayPhoto', 'deblock', 'grayPal', 'autoLevels', 'fitOn'].forEach(k => check(k, k === 'fitOn' ? 'fit' : k));
+$('caption').addEventListener('input', e => { S.caption = e.target.value; syncOutputs(); schedule(); });
+$('region').onchange = e => { S.region = e.target.value; saveS(); syncControls(); schedule(); };
+['sf', 'bw', 'cr', 'nameLen', 'repeaters'].forEach(k => $(k).addEventListener('input', e => { S[k] = +e.target.value; saveS(); schedule(); }));
+$('linkIn').addEventListener('input', e => { S.link = e.target.value; saveS(); });
+$('fitMinus').onclick = () => { S.fitN = clamp(S.fitN - 1, 1, 30); saveS(); syncOutputs(); if (S.fit) schedule(); };
+$('fitPlus').onclick = () => { S.fitN = clamp(S.fitN + 1, 1, 30); saveS(); syncOutputs(); if (S.fit) schedule(); };
+$('presets').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; Object.assign(S, PRESETS[b.dataset.p]); saveS(); syncControls(); schedule(); toast(b.textContent + ' preset applied'); });
+$('adjReset').onclick = () => { Object.assign(S, { bright: 0, contrast: 0, sat: 0, sharpen: DEFAULTS.sharpen, autoLevels: false }); saveS(); syncControls(); schedule(); };
+$('resetBtn').onclick = () => { const keep = { link: S.link, region: S.region, sf: S.sf, bw: S.bw, cr: S.cr, nameLen: S.nameLen, repeaters: S.repeaters, compare: S.compare, smooth: S.smooth }; S = Object.assign({}, DEFAULTS, keep); saveS(); syncControls(); schedule(); toast('Settings reset'); };
+$('cmpBtn').onclick = () => { S.compare = !S.compare; saveS(); syncControls(); if (S.compare) drawOrig(); };
+$('smoothBtn').onclick = () => { S.smooth = !S.smooth; saveS(); syncControls(); };
+
+function syncControls() {
+  const setSeg = (id, v) => [...$(id).children].forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+  setSeg('styleSeg', S.style); setSeg('ditherSeg', S.dither); setSeg('encSeg', S.encoding);
+  $('photoOpts').hidden = S.style !== 'photo'; $('pixelOpts').hidden = S.style !== 'pixel';
+  $('styleHelp').textContent = S.style === 'photo' ? 'Best for camera pictures. Smooth colours, soft detail.' : 'Best for drawings, logos, maps and screenshots. A few exact colours, crisp edges.';
+  $('ditherStrField').hidden = S.dither === 'none';
+  ['maxDim', 'quality', 'colors', 'ditherStr', 'bright', 'contrast', 'sat', 'sharpen', 'maxChars', 'parity'].forEach(k => $(k).value = S[k]);
+  $('grayPhoto').checked = S.grayPhoto; $('deblock').checked = S.deblock; $('grayPal').checked = S.grayPal; $('autoLevels').checked = S.autoLevels; $('fitOn').checked = S.fit;
+  $('caption').value = S.caption; $('region').value = S.region; $('customRadio').hidden = S.region !== 'custom';
+  ['sf', 'bw', 'cr', 'nameLen', 'repeaters'].forEach(k => $(k).value = S[k]);
+  $('linkIn').value = S.link;
+  $('fitRow').style.opacity = S.fit ? 1 : 0.5;
+  $('fitHelp').textContent = S.style === 'photo' ? 'Quality is picked for you. If even the lowest quality is too big, the size shrinks too.' : 'The size is picked for you, up to the Size setting.';
+  $('quality').disabled = S.fit && S.style === 'photo';
+  $('cmpBtn').setAttribute('aria-pressed', S.compare); $('pvOrigFig').hidden = !S.compare; $('pvBox').classList.toggle('compare', S.compare);
+  $('smoothBtn').setAttribute('aria-pressed', S.smooth); $('previewPanel').classList.toggle('smooth', S.smooth);
+  syncOutputs();
+}
+function syncOutputs() {
+  if (!rotCanvas) $('dimOut').textContent = `${S.maxDim} px longest side`;
+  if (!(S.fit && S.style === 'photo')) $('qOut').textContent = S.quality;
+  $('colOut').textContent = S.grayPal ? `${1 << S.colors} greys` : `${1 << S.colors}`;
+  $('dsOut').textContent = Math.round(S.ditherStr * 100) + '%';
+  const sgn = v => (v > 0 ? '+' : '') + v;
+  $('brOut').textContent = sgn(S.bright); $('coOut').textContent = sgn(S.contrast); $('saOut').textContent = sgn(S.sat); $('shOut').textContent = S.sharpen;
+  $('mcOut').textContent = `${S.maxChars} (${MP.bytesPerChunk(S.maxChars, S.encoding)} bytes each)`;
+  $('parOut').textContent = S.parity;
+  $('fitN').textContent = S.fitN;
+  $('capOut').textContent = `${new TextEncoder().encode(S.caption.trim()).length} / 100`;
+}
+
+/* ------------------------------ receive ------------------------------ */
+let inbox = store.get('meshpix.inbox', {});
+const saveInbox = () => store.set('meshpix.inbox', inbox);
+function ingest(text) {
+  const { found, bad } = MP.parseChunks(text);
+  let added = 0, dup = 0;
+  const touched = new Set();
+  for (const f of found) {
+    let g = inbox[f.key];
+    if (!g) g = inbox[f.key] = { id: f.id, enc: f.enc, k: f.k, n: f.n, L: f.L, chunks: {}, t: Date.now() };
+    if (g.chunks[f.idx]) dup++; else { g.chunks[f.idx] = f.text; added++; g.t = Date.now(); }
+    touched.add(f.key);
+  }
+  const m = $('ingestMsg');
+  if (!found.length && !bad.length) { m.textContent = text.trim() ? 'No Meshpix messages in that text. They start with ~m or ~b.' : ''; m.className = 'ingest-msg bad'; return false; }
+  const parts = [];
+  if (added) parts.push(`Added ${added} message${added > 1 ? 's' : ''}.`);
+  if (dup) parts.push(`${dup} ${dup > 1 ? 'were' : 'was'} already here.`);
+  if (bad.length) parts.push(`${bad.length} looked cut off and ${bad.length > 1 ? 'were' : 'was'} skipped. Ask the sender to lower Characters per message.`);
+  m.textContent = parts.join(' '); m.className = 'ingest-msg ' + (bad.length && !added ? 'bad' : 'ok');
+  saveInbox(); renderInbox(touched);
+  return true;
+}
+const byteCache = new Map();
+function chunkBytes(text) {
+  if (!byteCache.has(text)) { const r = MP.parseChunks(text).found[0]; byteCache.set(text, r ? r.bytes : null); }
+  return byteCache.get(text);
+}
+function renderInbox(highlight) {
+  const keys = Object.keys(inbox).sort((a, b) => inbox[b].t - inbox[a].t);
+  const box = $('cards'); box.innerHTML = '';
+  $('recvEmpty').hidden = keys.length > 0; $('clearAll').hidden = keys.length === 0;
+  const cnt = $('inboxCount'); cnt.hidden = keys.length === 0; cnt.textContent = keys.length;
+  keys.forEach(key => box.append(card(key, highlight && highlight.has(key))));
+}
+function card(key, hl) {
+  const g = inbox[key];
+  const chunks = new Map();
+  for (const [i, t] of Object.entries(g.chunks)) { const b = chunkBytes(t); if (b && b.length === g.L) chunks.set(+i, b); }
+  const asm = MP.assemble({ k: g.k, n: g.n, L: g.L, chunks });
+  let img = null, err = null;
+  try { img = MP.decodeImage(asm.buf, asm.avail); } catch (e) { err = e.message; }
+  const el = document.createElement('article'); el.className = 'panel card';
+  if (hl) el.style.borderColor = 'var(--teal)';
+  const frame = document.createElement('div'); frame.className = 'frame';
+  let cv = null;
+  if (img && img.rgba) {
+    cv = document.createElement('canvas'); cv.width = img.W; cv.height = img.H;
+    cv.getContext('2d').putImageData(new ImageData(img.rgba, img.W, img.H), 0, 0);
+    if (g.smooth) cv.classList.add('smooth');
+    cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', img.caption || 'Received picture');
+    frame.append(cv);
+  } else {
+    frame.innerHTML = '<div class="hint small" style="padding:16px;text-align:center">The picture appears once message 1 arrives.</div>';
+  }
+  const meta = document.createElement('div'); meta.className = 'meta';
+  const got = chunks.size, need = Math.max(0, g.k - got);
+  const complete = !err && img && img.complete && asm.complete;
+  const title = document.createElement('div'); title.className = 'cap';
+  title.textContent = (img && img.caption) || `Picture ${g.id}`;
+  const st = document.createElement('div'); st.className = 'status';
+  if (err) { st.classList.add('err'); st.textContent = err === 'checksum mismatch' ? "These messages don't fit together (checksum mismatch). Two pictures may have been mixed. Remove this one and paste again." : "Couldn't read this picture: " + err + '.'; }
+  else if (complete) { st.classList.add('done'); st.textContent = asm.recovered ? 'Complete, rebuilt with recovery messages' : 'Complete'; }
+  else { st.classList.add('wait'); st.textContent = `Waiting for ${need} more message${need > 1 ? 's' : ''}` + (g.n > g.k ? ` (any ${need} of the missing ones)` : ''); }
+  const strip = document.createElement('div'); strip.className = 'strip';
+  for (let i = 0; i < g.n; i++) {
+    const t = document.createElement('span'), rec = i >= g.k, has = chunks.has(i);
+    t.className = 'tile' + (rec ? ' rec' : '') + (has ? ' on' : complete && !rec ? ' rebuilt' : ' miss');
+    t.textContent = i + 1; t.title = (rec ? 'Recovery message ' : 'Message ') + (i + 1) + (has ? ', received' : complete && !rec ? ', rebuilt' : ', missing');
+    strip.append(t);
+  }
+  const info = document.createElement('div'); info.className = 'hint small';
+  info.textContent = `${got} of ${g.n} received` + (img && img.W ? `, ${img.W} × ${img.H} px, ${img.info}` : '') + (img && img.bytes ? `, ${img.bytes} bytes` : '') + (!complete && img && img.progress ? `, ${Math.round(img.progress * 100)}% drawn` : '');
+  meta.append(title, st, strip, info);
+  const acts = document.createElement('div'); acts.className = 'row';
+  if (complete && cv) {
+    const scale = document.createElement('select'); scale.setAttribute('aria-label', 'Saved size'); scale.style.width = 'auto';
+    const maxS = Math.max(1, Math.floor(1024 / Math.max(img.W, img.H)));
+    [1, 4, 8].filter(s => s <= Math.max(maxS, 1)).concat(maxS > 8 ? [maxS] : []).forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s === 1 ? `Original (${img.W} px)` : `${s}× (${img.W * s} px)`; scale.append(o); });
+    scale.value = String(Math.min(8, maxS));
+    const up = s => { const c = mk(img.W * s, img.H * s), x = c.getContext('2d'); x.imageSmoothingEnabled = !!g.smooth; x.imageSmoothingQuality = 'high'; x.drawImage(cv, 0, 0, c.width, c.height); return c; };
+    const save = document.createElement('button'); save.className = 'btn primary'; save.textContent = 'Save picture';
+    save.onclick = async () => { const c = up(+scale.value); const blob = await new Promise(r => c.toBlob(r, 'image/png')); offerFile(`meshpix-${(img.caption || g.id).replace(/[^\w-]+/g, '-').slice(0, 40)}.png`, blob, c.toDataURL('image/png')); };
+    const cp = document.createElement('button'); cp.className = 'btn'; cp.textContent = 'Copy picture';
+    cp.onclick = async () => {
+      try { const c = up(+scale.value); const blob = await new Promise(r => c.toBlob(r, 'image/png')); await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); toast('Picture copied'); }
+      catch (e) { toast('Copying pictures is blocked here. Use Save picture instead.'); }
+    };
+    const sm = document.createElement('button'); sm.className = 'chip'; sm.textContent = 'Smooth'; sm.setAttribute('aria-pressed', !!g.smooth);
+    sm.onclick = () => { g.smooth = !g.smooth; saveInbox(); cv.classList.toggle('smooth', g.smooth); sm.setAttribute('aria-pressed', g.smooth); };
+    acts.append(save, cp, scale, sm);
+  }
+  const rm = document.createElement('button'); rm.className = 'btn ghost danger'; rm.textContent = 'Remove';
+  rm.onclick = () => { delete inbox[key]; saveInbox(); renderInbox(); };
+  acts.append(rm);
+  meta.append(acts);
+  el.append(frame, meta);
+  return el;
+}
+let pasteT = 0;
+$('pasteBox').addEventListener('input', () => {
+  clearTimeout(pasteT);
+  pasteT = setTimeout(() => { const box = $('pasteBox'); if (ingest(box.value) && $('autoClear').checked) box.value = ''; }, 250);
+});
+$('addBtn').onclick = () => { const box = $('pasteBox'); if (ingest(box.value) && $('autoClear').checked) box.value = ''; };
+$('clipBtn').onclick = async () => {
+  try { const t = await navigator.clipboard.readText(); if (!t) { toast('The clipboard is empty.'); return; } ingest(t); }
+  catch (e) { $('pasteBox').focus(); const m = $('ingestMsg'); m.textContent = 'Your browser blocked reading the clipboard. Long-press the box (or press Ctrl/⌘ + V) and paste.'; m.className = 'ingest-msg bad'; }
+};
+$('clearAll').onclick = () => { if (!confirm('Remove all received pictures from this browser?')) return; inbox = {}; saveInbox(); renderInbox(); };
+$('saveTool').onclick = () => offerFile('meshpix.html', new Blob([PRISTINE], { type: 'text/html' }));
+
+/* ------------------------------ init ------------------------------ */
+syncControls();
+renderInbox();
+})();
+</script>
+</body>
+</html>
